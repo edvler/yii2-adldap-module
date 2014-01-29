@@ -2,8 +2,8 @@
     "name": "edvlerblog/yii2-adldap-module",
     "description": "yii2 adldap extention",
     "type": "yii2-extension",
-    "keywords": ["active directory","ldap","yii2"],
-    "homepage": "http://adldap.sourceforge.net",
+    "keywords": ["active directory","ldap","yii2", "adldap"],
+    "homepage": "http://www.edvler-blog.de",
     "time": "2014-01-29",
     "license": "LGPL-2.1",
     "authors": [
@@ -20,7 +20,7 @@
     },
     "autoload": {
         "psr-4" : {
-            "Edvlerblog\\" : "lib/"
+            "Edvlerblog\\" : "src/"
         }
     }
 }
