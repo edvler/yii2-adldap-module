@@ -1,8 +1,8 @@
 {
     "name": "edvlerblog/yii2-adldap-module",
-    "description": "yii2 adldap extention",
+    "description": "yii2 adldap extention (wrapper for adldap/adLDAP Module)",
     "type": "yii2-extension",
-    "keywords": ["active directory","ldap","yii2", "adldap"],
+    "keywords": ["active directory","ldap","yii2", "adldap", "ad"],
     "homepage": "http://www.edvler-blog.de",
     "time": "2014-01-29",
     "license": "LGPL-2.1",
@@ -15,7 +15,6 @@
         }
     ],
     "require": {
-        "php": ">=5.2.4",
         "adldap/adldap": "v4.0-stable"
     },
     "autoload": {
