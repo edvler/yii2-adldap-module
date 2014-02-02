@@ -12,11 +12,11 @@ The preferred way to install this extension is through [Composer](http://getcomp
 
 Either run
 
-	php composer.phar require edvlerblog/yii2-adldap-module "dev-master"
+	php composer.phar require edvlerblog/yii2-adldap-module "v1.0.0"
 
 or add
 
-	"edvlerblog/yii2-adldap-module": "dev-master"
+	"edvlerblog/yii2-adldap-module": "v1.0.0"
 
 to the require section of your composer.json
 
