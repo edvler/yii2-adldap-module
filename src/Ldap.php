@@ -23,7 +23,7 @@ namespace Edvlerblog;
  * @author Matthias Maderer
  * @copyright (c) 2014 Matthias Maderer
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPLv2.1
- * @version 1.0
+ * @version 1.0.0
  * @link 
  */
 
