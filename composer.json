@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "adldap/adldap": "v4.0.*"
+        "adldap/adldap": "v4.0.4"
     },
     "autoload": {
         "psr-4" : {
