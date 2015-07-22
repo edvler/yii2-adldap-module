@@ -29,7 +29,7 @@ namespace Edvlerblog;
 
 
 use yii\base\Component; //include YII component class
-use adLDAP\adLDAP; //include the adLDAP class
+use Adldap\Adldap; //include the adLDAP class
 
 class Ldap extends Component {
     /**
