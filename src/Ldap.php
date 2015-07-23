@@ -1,5 +1,5 @@
 <?php
-namespace Edvlerblog;
+namespace fiamma06;
 /**
  * YII2 wrapper class for the adLDAP Module.
  * Look at https://packagist.org/packages/adldap/adldap for the adLDAP Module
@@ -29,7 +29,7 @@ namespace Edvlerblog;
 
 
 use yii\base\Component; //include YII component class
-use adLDAP\adLDAP; //include the adLDAP class
+use Adldap\Adldap; //include the adLDAP class
 
 class Ldap extends Component {
     /**

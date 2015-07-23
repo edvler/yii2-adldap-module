@@ -1,5 +1,5 @@
 {
-    "name": "edvlerblog/yii2-adldap-module",
+    "name": "fiamma06/yii2-adldap-module",
     "description": "yii2 adldap extention (wrapper for adldap/adLDAP Module)",
     "type": "yii2-extension",
     "keywords": ["active directory","ldap","yii2", "adldap", "ad"],
@@ -15,11 +15,11 @@
         }
     ],
     "require": {
-        "adldap/adldap": "v4.0-stable"
+        "adldap/adldap": "dev-master"
     },
     "autoload": {
         "psr-4" : {
-            "Edvlerblog\\" : "src/"
+            "fiamma06\\" : "src/"
         }
     }
 }
