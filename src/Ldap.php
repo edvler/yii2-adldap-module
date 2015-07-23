@@ -1,5 +1,5 @@
 <?php
-namespace Edvlerblog;
+namespace fiamma06;
 /**
  * YII2 wrapper class for the adLDAP Module.
  * Look at https://packagist.org/packages/adldap/adldap for the adLDAP Module
