@@ -15,11 +15,11 @@
         }
     ],
     "require": {
-        "adldap/adldap": "v4.0.4"
+        "adldap/adldap": "v5.0"
     },
     "autoload": {
         "psr-4" : {
-            "Edvlerblog\\" : "src/"
+            "fiamma06\\" : "src/"
         }
     }
 }
