@@ -1,5 +1,5 @@
 {
-    "name": "edvlerblog/yii2-adldap-module",
+    "name": "cornernote/yii2-adldap-module",
     "description": "yii2 adldap extention (wrapper for adldap/adLDAP Module)",
     "type": "yii2-extension",
     "keywords": ["active directory","ldap","yii2", "adldap", "ad"],
