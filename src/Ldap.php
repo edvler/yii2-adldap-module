@@ -2,8 +2,8 @@
 namespace Edvlerblog;
 
 /**
- * YII2 wrapper class for the adLDAP Module.
- * Look at https://packagist.org/packages/adldap/adldap for the adLDAP Module
+ * YII2 wrapper class for the Adldap Module.
+ * Look at https://packagist.org/packages/adldap/adldap for the Adldap Module
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,10 +17,10 @@ namespace Edvlerblog;
  *
  * THANKS TO:
  * - Fedek. He wrote a similar plugin for yii 1.
- * - ztec. He is maintaining the adLDAP repository on git
+ * - ztec. He is maintaining the Adldap repository on git
  *
  * @category ToolsAndUtilities
- * @package yii2-adLDAP-module
+ * @package yii2-adldap-module
  * @author Matthias Maderer
  * @copyright (c) 2014 Matthias Maderer
  * @license http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPLv2.1
@@ -30,21 +30,21 @@ namespace Edvlerblog;
 
 
 use yii\base\Component; //include YII component class
-use Adldap\Adldap; //include the adLDAP class
-use adLDAP\Exceptions\adLDAPException;
+use Adldap\Adldap; //include the Adldap class
+use Adldap\Exceptions\AdldapException;
 
 class Ldap extends Component
 {
     /**
-     * The internal adLDAP object.
+     * The internal Adldap object.
      *
-     * @var object adLDAP
+     * @var object Adldap
      */
     private $adLdapClass;
 
     /**
-     * Options variable for the adLDAP module.
-     * See adLDAP __construct function for possible values.
+     * Options variable for the Adldap module.
+     * See Adldap __construct function for possible values.
      *
      * @var array Array with option values
      */
@@ -56,17 +56,17 @@ class Ldap extends Component
     public function init()
     {
         try {
-            $this->adLdapClass = new adLDAP($this->options);
-        } catch (adLDAPException $e) {
+            $this->adLdapClass = new Adldap($this->options);
+        } catch (AdldapException $e) {
             throw $e;
         }
     }
 
     /**
-     * Use magic PHP function __call to route function calls to the adLDAP class.
-     * Look into the adLDAP class for possible functions.
+     * Use magic PHP function __call to route function calls to the Adldap class.
+     * Look into the Adldap class for possible functions.
      *
-     * @param string $methodName Method name from adLDAP class
+     * @param string $methodName Method name from Adldap class
      * @param array $methodParams Parameters pass to method
      * @return mixed
      */
