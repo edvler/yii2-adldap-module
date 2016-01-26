@@ -2,6 +2,7 @@
 
 [Yii2](http://www.yiiframework.com) extension for adLDAP (https://packagist.org/packages/adldap/adldap)
 
+![Build Status](https://travis-ci.org/edvler/yii2-adldap-module.svg?branch=master)
 
 ## Installation
 
