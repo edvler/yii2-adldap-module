@@ -15,7 +15,8 @@
         }
     ],
     "require": {
-        "adldap/adldap": "5.*"
+        "adldap2/adldap2": "5.*",
+		"yiisoft/yii2": "*"
     },
     "autoload": {
         "psr-4" : {
