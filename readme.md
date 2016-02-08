@@ -1,6 +1,6 @@
 # yii2-adldap-module
 
-[Yii2](http://www.yiiframework.com) extension for adLDAP (https://packagist.org/packages/adldap/adldap)
+[Yii2](http://www.yiiframework.com) extension for adLDAP (https://packagist.org/packages/adldap2/adldap2)
 
 ![Build Status](https://travis-ci.org/edvler/yii2-adldap-module.svg?branch=master)
 
@@ -13,11 +13,11 @@ The preferred way to install this extension is through [Composer](http://getcomp
 
 Either run
 
-	php composer.phar require edvlerblog/yii2-adldap-module "v1.0.0"
+	php composer.phar require edvlerblog/yii2-adldap-module "v1.1.0"
 
 or add
 
-	"edvlerblog/yii2-adldap-module": "v1.0.0"
+	"edvlerblog/yii2-adldap-module": "v1.1.0"
 
 to the require section of your composer.json
 
@@ -45,7 +45,7 @@ Add this code in your components section of the application configuration (eg. c
 		...
 	]
 	
-[More abount config options](http://adldap.sourceforge.net/wiki/doku.php?id=documentation_configuration)
+[More abount config options](https://github.com/Adldap2/Adldap2/blob/v5.2/docs/CONFIGURATION.md)
 
 
 ## Examples
@@ -55,7 +55,7 @@ You can use the yii2-adldap-module everywhere where \Yii::$app works (Controller
 
 Authenticate User:
 
-    $authUser = \Yii::$app->ldap->authenticate("username","password");
+    $authUser = \Yii::$app->ldap->authenticate("username","password", true);
 	var_dump ($authUser);
 
 Group membership of a User:
@@ -76,6 +76,4 @@ Get informations about a Group:
 ## DOCUMENTATION
 yii2-adldap-module is only a wrapper class. Feel free to learn more about the underlying adLDAP.
 
-You can find the website at https://github.com/adldap/adLDAP/ or the class documentation at
-
-https://github.com/adldap/adLDAP/wiki/adLDAP-Developer-API-Reference
+You can find the website at https://github.com/adldap2/adLDAP2/
