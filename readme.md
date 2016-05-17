@@ -39,7 +39,13 @@ Add this code in your components section of the application configuration (eg. c
 					// for basic functionality this could be a standard, non privileged domain user (required)
 					'admin_username' => 'ActiveDirectoryUser',
 					'admin_password' => 'StrongPassword'
-				]
+				],
+			//Connect on Adldap instance creation (default). If you don't want to set password via main.php you can
+			//set autoConnect => false and set the admin_username and admin_password with
+			//Yii::$app->ldap->setAdminUsername and Yii::$app->ldap->setAdminPassword function
+			//After setting you can connect with Yii::$app->ldap->connect();
+			//See http://adldap.sourceforge.net/wiki/doku.php?id=documentation_connections at the bottom
+			'autoConnect' => true
 		]
 		
 		...
