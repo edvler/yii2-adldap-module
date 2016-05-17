@@ -43,6 +43,20 @@ class Ldap extends Component
     private $adLdapClass;
 
     /**
+     * Connection variable for the Adldap constructor.
+     *
+     * @var Adldap\Connection\Ldap instance
+     */
+    public $connection = null;    
+    
+    /**
+     * AutoConnect variable for the Adldap constructor.
+     *
+     * @var boolean autoConnect on instance creation
+     */
+    public $autoConnect = true;    
+
+    /**
      * Options variable for the Adldap module.
      * See Adldap __construct function for possible values.
      *
@@ -56,7 +70,7 @@ class Ldap extends Component
     public function init()
     {
         try {
-            $this->adLdapClass = new Adldap($this->options);
+            $this->adLdapClass = new Adldap($this->options, $this->connection, $this->autoConnect);
         } catch (AdldapException $e) {
             throw $e;
         }
