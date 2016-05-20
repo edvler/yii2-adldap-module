@@ -6,6 +6,14 @@
 [![Total Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/downloads)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![Monthly Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/d/monthly)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 
+## Version
+
+yii2-adldap-module Releases beginning with tag v1.*.* are reserved for Adldap2 v5.*
+The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/v5.2/
+
+**Keep this in mind if you are browsing the GitHub Repository of Adldap2**
+
+
 ## Installation
 
 
@@ -91,16 +99,16 @@ with foreach
 	}
 
 with inGroup function
+
 	if ($user->inGroup($gn)) {
 	    echo 'User in Group ' . $gn;
 	} else {
 	    echo 'User NOT in Group ' . $gn;
 	}
 
-See further Information under: https://github.com/Adldap2/Adldap2/tree/v5.2/docs
-
+...
 
 ## DOCUMENTATION
 yii2-adldap-module is only a wrapper class. Feel free to learn more about the underlying adLDAP.
 
-You can find the website at https://github.com/adldap2/adLDAP2/
+You can find the website at https://github.com/Adldap2/Adldap2/tree/v5.2/docs
