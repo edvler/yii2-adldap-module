@@ -58,40 +58,44 @@ Add this code in your components section of the application configuration (eg. c
 
 ## Examples
 
-//Authenticate user
-//See https://github.com/Adldap2/Adldap2/blob/v5.2/docs/GETTING-STARTED.md
-$un = 'testuser';
-$pw = 'VeryStrongPw';
-if(\Yii::$app->ldap->authenticate($un,$pw)) {
-    echo 'User successfully authenticated';
-} else {
-    echo 'User or Password wrong';
-}
+Authenticate user
+https://github.com/Adldap2/Adldap2/blob/v5.2/docs/GETTING-STARTED.md
 
-//Retrive all informations about a user
-//See https://github.com/Adldap2/Adldap2/blob/v5.2/docs/classes/USERS.md
-//or https://github.com/Adldap2/Adldap2/blob/v5.2/docs/SEARCH.md
-$user = \Yii::$app->ldap->users()->find($un);
+	$un = 'testuser';
+	$pw = 'VeryStrongPw';
+	if(\Yii::$app->ldap->authenticate($un,$pw)) {
+	    echo 'User successfully authenticated';
+	} else {
+	    echo 'User or Password wrong';
+	}
 
-//print all informations of the user object
-echo "<pre>";
-echo var_dump($user);
-echo "</pre>"; 
 
-//Check if user is in group
-//with foreach
-$gn = 'pacs-hellge_Admin_gl';
-foreach($user->getMemberOf() as $group)
-{
-    if($gn == $group->getName()) ECHO "TRUE";
-}
+Retrive all informations about a user
+https://github.com/Adldap2/Adldap2/blob/v5.2/docs/classes/USERS.md
+or https://github.com/Adldap2/Adldap2/blob/v5.2/docs/SEARCH.md
 
-//with inGroup function
-if ($user->inGroup($gn)) {
-    echo 'User in Group ' . $gn;
-} else {
-    echo 'User NOT in Group ' . $gn;
-}
+	$user = \Yii::$app->ldap->users()->find($un);
+	
+	//print all informations of the user object
+	echo "<pre>";
+	echo var_dump($user);
+	echo "</pre>"; 
+
+Check if user is in group
+with foreach
+
+	$gn = 'pacs-hellge_Admin_gl';
+	foreach($user->getMemberOf() as $group)
+	{
+	    if($gn == $group->getName()) ECHO "TRUE";
+	}
+
+with inGroup function
+	if ($user->inGroup($gn)) {
+	    echo 'User in Group ' . $gn;
+	} else {
+	    echo 'User NOT in Group ' . $gn;
+	}
 
 See further Information under: https://github.com/Adldap2/Adldap2/tree/v5.2/docs
 
