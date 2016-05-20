@@ -42,11 +42,11 @@ Add this code in your components section of the application configuration (eg. c
 					'admin_username' => 'ActiveDirectoryUser',
 					'admin_password' => 'StrongPassword'
 				],
-			//Connect on Adldap instance creation (default). If you don't want to set password via main.php you can
-			//set autoConnect => false and set the admin_username and admin_password with
-			//Yii::$app->ldap->setAdminUsername and Yii::$app->ldap->setAdminPassword function
-			//After setting you can connect with Yii::$app->ldap->connect();
-			//See http://adldap.sourceforge.net/wiki/doku.php?id=documentation_connections at the bottom
+		        //Connect on Adldap instance creation (default). If you don't want to set password via main.php you can
+		        //set autoConnect => false and set the admin_username and admin_password with
+			//\Yii::$app->ldap->connect('admin_username', 'admin_password');
+			//See function connect() in https://github.com/Adldap2/Adldap2/blob/v5.2/src/Adldap.php
+		
 			'autoConnect' => true
 		]
 		
@@ -58,27 +58,42 @@ Add this code in your components section of the application configuration (eg. c
 
 ## Examples
 
-To use the yii2-adldap-module you need only one line. 
-You can use the yii2-adldap-module everywhere where \Yii::$app works (Controllers, Widgets,...).
+//Authenticate user
+//See https://github.com/Adldap2/Adldap2/blob/v5.2/docs/GETTING-STARTED.md
+$un = 'testuser';
+$pw = 'VeryStrongPw';
+if(\Yii::$app->ldap->authenticate($un,$pw)) {
+    echo 'User successfully authenticated';
+} else {
+    echo 'User or Password wrong';
+}
 
-Authenticate User:
+//Retrive all informations about a user
+//See https://github.com/Adldap2/Adldap2/blob/v5.2/docs/classes/USERS.md
+//or https://github.com/Adldap2/Adldap2/blob/v5.2/docs/SEARCH.md
+$user = \Yii::$app->ldap->users()->find($un);
 
-    $authUser = \Yii::$app->ldap->authenticate("username","password", true);
-	var_dump ($authUser);
+//print all informations of the user object
+echo "<pre>";
+echo var_dump($user);
+echo "</pre>"; 
 
-Group membership of a User:
+//Check if user is in group
+//with foreach
+$gn = 'pacs-hellge_Admin_gl';
+foreach($user->getMemberOf() as $group)
+{
+    if($gn == $group->getName()) ECHO "TRUE";
+}
 
-	$groups = \Yii::$app->ldap->user()->groups("username");
-	var_dump($groups);  
-	
-Get informations about a Group:
+//with inGroup function
+if ($user->inGroup($gn)) {
+    echo 'User in Group ' . $gn;
+} else {
+    echo 'User NOT in Group ' . $gn;
+}
 
-	$groupinfo= \Yii::$app->ldap->group()->info("example_group");
-	var_dump($groupinfo);  
-
-....
-	
-[More examples](https://github.com/adldap/adLDAP/blob/master/examples/examples.php)
+See further Information under: https://github.com/Adldap2/Adldap2/tree/v5.2/docs
 
 
 ## DOCUMENTATION
