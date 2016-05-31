@@ -85,14 +85,14 @@ or https://github.com/Adldap2/Adldap2/blob/v5.2/docs/SEARCH.md
 	$user = \Yii::$app->ldap->users()->find($un);
 	
 	//print all informations of the user object
-	echo "<pre>";
+	echo '<pre>';
 	echo var_dump($user);
-	echo "</pre>"; 
+	echo '</pre>'; 
 
 Check if user is in group
 with foreach
 
-	$gn = 'pacs-hellge_Admin_gl';
+	$gn = 'the-group-name';
 	foreach($user->getMemberOf() as $group)
 	{
 	    if($gn == $group->getName()) ECHO "TRUE";
