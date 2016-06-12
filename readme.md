@@ -82,6 +82,7 @@ Retrive all informations about a user
 https://github.com/Adldap2/Adldap2/blob/v5.2/docs/classes/USERS.md
 or https://github.com/Adldap2/Adldap2/blob/v5.2/docs/SEARCH.md
 
+	$un = 'testuser';
 	$user = \Yii::$app->ldap->users()->find($un);
 	
 	//print all informations of the user object
@@ -92,14 +93,23 @@ or https://github.com/Adldap2/Adldap2/blob/v5.2/docs/SEARCH.md
 Check if user is in group
 with foreach
 
+	$un = 'testuser';
+	$user = \Yii::$app->ldap->users()->find($un);
+
 	$gn = 'the-group-name';
 	foreach($user->getMemberOf() as $group)
 	{
-	    if($gn == $group->getName()) ECHO "TRUE";
+	    if($gn == $group->getName()) {
+	    	echo 'TRUE';
+	    }
 	}
 
 with inGroup function
 
+	$un = 'testuser';
+	$user = \Yii::$app->ldap->users()->find($un);
+
+	$gn = 'the-group-name';
 	if ($user->inGroup($gn)) {
 	    echo 'User in Group ' . $gn;
 	} else {
