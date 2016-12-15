@@ -63,7 +63,7 @@ Add this code in your components section of the application configuration (eg. c
                     'autoconnect' => true,
                     
                     // The config has to be defined as described in the Adldap2 documentation.
-                    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/quick-start.md
+                    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md
                     'config' => [
                         // Your account suffix, for example: matthias.maderer@example.lan
                         'account_suffix'        => '@example.lan',
@@ -93,7 +93,7 @@ Add this code in your components section of the application configuration (eg. c
                     'autoconnect' => false,
                     
                     // The config has to be defined as described in the Adldap2 documentation.
-                    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/quick-start.md                  
+                    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md                
                     'config' => [
                         // Your account suffix, for example: matthias.maderer@test.lan
                         'account_suffix'        => 'test.lan',
@@ -114,8 +114,6 @@ Add this code in your components section of the application configuration (eg. c
                 
             ],
         ],
-	
-More abount config options: https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md
 
 
 ## Syntax
@@ -147,23 +145,38 @@ https://github.com/Adldap2/Adldap2/blob/v6.1/docs/authenticating.md
 	}
 
 
-Retrive all informations about a user
-https://github.com/Adldap2/Adldap2/blob/v5.2/docs/classes/USERS.md
-or https://github.com/Adldap2/Adldap2/blob/v5.2/docs/SEARCH.md
+Finding a specific record by a specific attribute
+We're looking for a record with the 'samaccountname' of 'matthias'. This euqals to the username in Active Directory.
+https://github.com/Adldap2/Adldap2/blob/v6.1/docs/query-builder.md
 
 	$un = 'testuser';
-	$user = \Yii::$app->ldap->users()->find($un);
+	$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
 	
 	//print all informations of the user object
 	echo '<pre>';
 	echo var_dump($user);
-	echo '</pre>'; 
+	echo '</pre>';
+	
+	
+alternate method
+
+	$wheres = [
+	    'samaccountname' => 'testuser',
+	];
+
+	\Yii::$app->ad->getDefaultProvider()->search()->where($wheres);
+	
+	//print all informations of the user object
+	echo '<pre>';
+	echo var_dump($user);
+	echo '</pre>';
+
 
 Check if user is in group
 with foreach
 
 	$un = 'testuser';
-	$user = \Yii::$app->ldap->users()->find($un);
+	$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
 
 	$gn = 'the-group-name';
 	foreach($user->getMemberOf() as $group)
@@ -176,7 +189,7 @@ with foreach
 with inGroup function
 
 	$un = 'testuser';
-	$user = \Yii::$app->ldap->users()->find($un);
+	$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
 
 	$gn = 'the-group-name';
 	if ($user->inGroup($gn)) {
