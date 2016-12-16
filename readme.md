@@ -38,6 +38,9 @@ to the require section of your composer.json
 Add this code in your components section of the application configuration (eg. config/main.php for advanced template or config/web.php for basic template):
 
     'components' => [
+    	.....
+	.....
+	.....
         'ad' => [
             'class' => 'Edvlerblog\Adldap2\Adldap2Wrapper',
             
@@ -47,8 +50,6 @@ Add this code in your components section of the application configuration (eg. c
              * 
              * In the providers section it's possible to define multiple providers as listed as example below.
              * But it's enough to only define the "default" provider!
-	     *
-	     * 
              */
             'providers' => [
                 /*
@@ -114,6 +115,7 @@ Add this code in your components section of the application configuration (eg. c
                 
             ],
         ],
+	
 
 
 ## Syntax
@@ -126,15 +128,22 @@ For almost all operations you need a provider. You can access the provider in th
 	$search = $search->where('samaccountname', '=', 'matthias');
 	$result = $search->get();
 	
+	echo '<pre>';
+	echo print_r($result,true);
+	echo '</pre>';	
+	
 the same in one line.
 
 	$result = \Yii::$app->ad->getDefaultProvider()->search()->select(['cn', 'samaccountname', 'telephone', 'mail'])->where('samaccountname', '=', 'matthias')->get();
+	
+	echo '<pre>';
+	echo print_r($result,true);
+	echo '</pre>';	
 
 
 ## Examples
 
-Authenticate user
-https://github.com/Adldap2/Adldap2/blob/v6.1/docs/authenticating.md
+Authenticate user: https://github.com/Adldap2/Adldap2/blob/v6.1/docs/authenticating.md
 
 	$un = 'testuser';
 	$pw = 'VeryStrongPw';
@@ -145,35 +154,19 @@ https://github.com/Adldap2/Adldap2/blob/v6.1/docs/authenticating.md
 	}
 
 
-Finding a specific record by a specific attribute
-We're looking for a record with the 'samaccountname' of 'matthias'. This euqals to the username in Active Directory.
-https://github.com/Adldap2/Adldap2/blob/v6.1/docs/query-builder.md
+Finding a specific record by a specific attribute. We're looking for a record with the 'samaccountname' of 'matthias'. This euqals to the username in Active Directory. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/query-builder.md
 
 	$un = 'testuser';
 	$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
 	
 	//print all informations of the user object
 	echo '<pre>';
-	echo var_dump($user);
+	echo print_r($user,true);
 	echo '</pre>';
 	
-	
-alternate method
-
-	$wheres = [
-	    'samaccountname' => 'testuser',
-	];
-
-	\Yii::$app->ad->getDefaultProvider()->search()->where($wheres);
-	
-	//print all informations of the user object
-	echo '<pre>';
-	echo var_dump($user);
-	echo '</pre>';
 
 
-Check if user is in group
-with foreach
+Check if user is in group with getMemberOf(). See https://github.com/Adldap2/Adldap2/blob/v6.1/src/Models/Traits/HasMemberOfTrait.php
 
 	$un = 'testuser';
 	$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
@@ -186,7 +179,7 @@ with foreach
 	    }
 	}
 
-with inGroup function
+Check if user is in group with inGroup() function. See https://github.com/Adldap2/Adldap2/blob/v6.1/src/Models/Traits/HasMemberOfTrait.php
 
 	$un = 'testuser';
 	$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
