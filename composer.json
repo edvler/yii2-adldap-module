@@ -15,12 +15,12 @@
         }
     ],
     "require": {
-        "adldap2/adldap2": "^6.1.10",
-	"yiisoft/yii2": "*"
+        "adldap2/adldap2": "^6.0.0",
+	"yiisoft/yii2": "^2.0.0"
     },
     "autoload": {
         "psr-4" : {
-            "Edvlerblog\\" : "src/"
+            "Edvlerblog\\Adldap2\\" : "src/"
         }
     },
     "extra": {
