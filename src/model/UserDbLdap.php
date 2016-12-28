@@ -37,23 +37,6 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * If you run a backend task, which querys the informations from active directory every X minutes with cron or a another scheduler,
      * you can completly deactivate all refreshs on login.
      * 
-     */
-    
-    /**
-     * Constant SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK
-     * 
-     * This constant is DEFAULT if you doesn't configure anything.
-     * - On login a user is automatically created, if it not exists in database
-     * - On login the group assignments are refreshed
-     * - On login the account status is refreshed
-     * 
-     * In simple words: 
-     * If you login with a Active Directory user, which is active, and the password matches you can login!
-     * On every login the above mentioned points are checked. 
-     * For example: If a user is deactived, the next login would fail but the current session would be valid until logout.
-     * 
-     * 
-     * 
      * You can configure your own settings in the config/params.php
      * 
      *   With predefined constant
@@ -77,8 +60,22 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *                                   ],
      *       'LDAP-Group-Assignment-Options' => Edvlerblog\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
      *       //...
-     *   ];
+     *   ]; 
      * 
+     */
+    
+    /**
+     * Constant SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK
+     * 
+     * This constant is DEFAULT if you doesn't configure anything.
+     * - On login a user is automatically created, if it not exists in database
+     * - On login the group assignments are refreshed
+     * - On login the account status is refreshed
+     * 
+     * In simple words: 
+     * If you login with a Active Directory user, which is active, and the password matches you can login!
+     * On every login the above mentioned points are checked. 
+     * For example: If a user is deactived, the next login would fail but the current session would be valid until logout.
      * 
      * One word of caution! There are further options which beginning with GROUP_ASSIGNMENT_***. This are also influence the login behavior.
      */
@@ -126,13 +123,42 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     
      /**
      * Constants starting with GROUP_ASSIGNMENT_****
-     * This constant defines all options needed, that are influence the group to role matching
-     * of the UserDbLdap.
+     * This constant defines all options needed, that are influence the Active Directory group to yii2 role matching
+     * of the UserDbLdap class.
      * 
      * The first main purpose of this constant is to define, if a login without a assigned role is possible.
+     * 
      * The second purpose is to define which groups are matched to roles. This enables you to match only certain
      * groups to roles. DON'T forget to create a role with the same name as the group in Active Directory.
+     * 
      * The third purpose is to define how to deal with roles not matching a LDAP group name (remove them or don't touch them).
+     *
+      * 
+      * 
+     * You can configure your own settings in the config/params.php
+     * 
+     *   With predefined constant
+     *   
+     *   return [
+     *       //...
+     *       'LDAP-Group-Assignment-Options' => Edvlerblog\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE,
+     *       //...
+     *   ];
+     * 
+     *   With complete own settings
+     * 
+     *   return [
+     *       //...
+     *       'LDAP-Group-Assignment-Options' => [
+     *                                           'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/",
+     *                                           'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // start with
+     *                                           'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
+     *                                           'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
+     *                                           'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
+     *                                       ],
+     *       //...
+     *   ]; 
+     *
      * 
      * Some options use regex. Here are some exmaples for common use cases:
      * $regex = "/^(yii2)(.*)/"; // Evaluates to true if the beginning of the groupname is yii2. Example yii2_create_post gives true
@@ -145,12 +171,22 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * $regex = "/(yii2|app)/"; // Evaluates to true if the groupname contains yii2. Example group_yii2_post gives true, Example group_app_post gives true,
      * $regex = "/(.*)/"; // Evaluates to true on every groupname
      */   
+    
+    /**
+     * GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX constant
+     * If you don't define your own settings the constant GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX is used as default.
+     * 
+     * In short words the settings does the following:
+     *  - Login is possible without any role assinged
+     *  - Active Directory groups starting with yii2 and matching (name has to be euqal!) a yii2 role are added to the user
+     *  - Groups removed in Active Directory are removed in yii2 to. Groups not matching the REGEX_GROUP_MATCH_IN_LDAP are not touched.
+     */
     const GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX = [
             /*
              * LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX
              * If the value of this key is null, a user can login without a role assinged!
              * 
-             * If a regex is given, a role has to be assinged matching the regex.
+             * If a regex is given, a role has to be assinged that matches the regex given for this key to successfully login.
              * 
              * For example with the regex
              * 'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/";
@@ -158,25 +194,25 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
              * 
              * With this regex
              * 'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/^(yii2)(.*)/";
-             * a user can only login if a role is assigned starting with yii2.
-             * 
+             * a user can only login if a role is assigned which name is starting with yii2.
              */
             'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => null, // no role necceassarry for login
         
             /*
              * REGEX_GROUP_MATCH_IN_LDAP
-             * If a role exists in yii which matches a LDAP group, it is assigned to the user.
+             * If a role exists in yii2 which matches a LDAP group (names has to be the same!), it is assigned to the user.
              * The LDAP groups can be filtered with a regex to match only certain groups from LDAP.
              * 
              * In this example only groups starting with yii2 and app would be assigned to the user
-             * if a corresponding role exists in yii.
+             * if a corresponding role (again names has to be the same!) exists in yii2.
              */
             'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // groupname start with yii2 or app
         
             /*
              * ADD_GROUPS_FROM_LDAP_MATCHING_REGEX
-             * Groups would be added as described in REGEX_GROUP_MATCH_IN_LDAP.
+             * Groups from Active Directory would be matched with roles in yii2 and added as described in REGEX_GROUP_MATCH_IN_LDAP.
              * 
+             * Simple words:
              * If you add a group in Active Directory it would be added in yii too.
              */
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
@@ -187,7 +223,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
              * user.
              * 
              * If a role does NOT exists in Active Directory it would be removed.
-             * As as result the user only have roles assigned which are exists as groups in Active Directory
+             * As as result the user only have roles assigned, which are exists as groups in Active Directory, the user is member of and which
+             * matches a role in yii2.
              */
             'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => false,
         
@@ -198,22 +235,22 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
              * 
              * This means the user always have the roles which are assingned as groups in Active Directory.
              * If you remove one, it would be removed in yii2 too.
+             * But other roles is yii2 would not be touched.
              */        
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true,
         ];    
-    
-    
-    const GROUP_ASSIGNMENT_ADD_ONLY = [
-            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/",
-            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(app|user)(.*)/", // start with
+
+    const GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE = [
+            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/", // a role has to be assign, the name could be everything
+            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // start with
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
-            'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => false,
+            'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
-        ];
-    
+        ];    
+
     const GROUP_ASSIGNMENT_LDAP_MANDANTORY = [
             'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/",
-            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(app|user)(.*)/", // start with
+            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // start with
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
             'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
@@ -361,7 +398,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             $rolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($userObjectDb->getId());
             
             foreach ($rolesAssignedToUser as $role) {
-                if(preg_match($userObjectDb->getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX"),$role) == true) {
+                if(preg_match($userObjectDb->getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX"),$role->name) == true) {
                     return $userObjectDb;
                 }
             }
