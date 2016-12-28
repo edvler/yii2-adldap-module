@@ -149,7 +149,10 @@ The answer is simple for two reasons:
 - yii2 has no corresponding role
 
 #### Create example role
-Look into the source code of the 
+Look into the source code of the function actionCreateExampleRole (see file @vendor/edvlerblog/yii2-adldap-module/src/commands/LdapController.php).
+
+As you can see two permissions are created **(permissionDisplayDetailedAbout, permissionToUseContanctPage)** and assigend to the role 
+**yii2_example_group**.
 
 Open a shell or a cmd and change to the base directory of your yii2 installation (where the composer.json is located).  
 Type in your shell:  
@@ -161,4 +164,13 @@ Type in your shell:
     !!!! TODO !!!!
     A role with the name yii2_example_group was created in yii2.
     Please create a group with the same name in Active Directory.
-    Assign the user you are using for the login to this group in Active Directory.    
+    Assign the user you are using for the login to this group in Active Directory.
+    
+#### Create Active Directory Group 
+Now go to your Active Directory Management Console and create a group with the same name as the role (**yii2_example_group**).
+Make the user you are using for the login to a member of that group.
+
+
+#### Test the Login
+Now you can go to the login in page of your yii installation (see upper right corner of the website). Use the user which you are made to a member of the group **yii2_example_group** in Active Directory.
+If everythings okay you should see the username in upper right corner.
