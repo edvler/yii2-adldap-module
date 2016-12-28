@@ -62,10 +62,32 @@ http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac
         }
         //...
 
-### 7. Test the Login of your basic app.  
-If everythings okay you should see the username in upper right corner. At this point you can use any user in your Active Directory to login into the web application.
+### 7. Add the LdapController to the controllerMap in the config/console.php (basic template)
 
-  You can do select * from users to check if a user was inserted on login.
+        'controllerMap' => [
+            //...
+            'ldapcmd' => [
+                'class' => 'Edvlerblog\commands\LdapController',
+            ],
+            //...
+        ],
+        
+Open a shell or a cmd and change to the base directory of your yii2 installation (where the composer.json is located).  
+Type in your shell:  
+**yii**
+You should see a ldapcmd entry with the commands ldapcmd/create-example-role and others.  
+
+### 8. Test the Login of your basic app.  
+Now you can go to the login in page of your yii installation (see upper right corner of the website). You can use any Active Directory user which is able to login on the windows login of your PC.  
+If everythings okay you should see the username in upper right corner.
+
+    You can do  
+    select * from users  
+    to check if a user was inserted on login.
+    
+    With 
+    SELECT * FROM auth_assignment;
+    you can check if any roles where assigned to your user on login (it is normal that no roles assigned at this point!)
 
 
 ## Task 2 - Configuration
@@ -78,6 +100,7 @@ Maybe you think: Configuration, what?? But there are severel possible ways to co
 **user** = Means a user which exists in Active Directory.  
 **username or login** = sAMAccountName attribute in Active Directory (the username you type at the windows login)  
 **assigned group** = Means that a user is member of a group in Active Directory  
+**assigned role** = Means that a user is member of a role in yii2  
 
 
 **How it works in short words with the default settings**  
@@ -100,7 +123,7 @@ In Step 7 of Task 1 you are have already done a successfully hopefully. But the 
 Before you continue read the the commets in source code starting at line 127.  
 https://github.com/edvler/yii2-adldap-module/blob/master/src/model/UserDbLdap.php#L127
 
-
+#### Login only possible when a role is assigned to the user
 Now add the following to your config/params.php
 
     return [
@@ -119,9 +142,23 @@ The configuration does the same as the default configuration with **one exceptio
  - The LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX is not null.
  Now only users with roles assigned beginning with **yii2 OR app** can login!
  
-If you try to login again (please logout before) it will not work!
-Why?
+If you try to login again (please logout before) it will not work!  
+Why?  
 The answer is simple for two reasons:
 - You don't have a group in Active Directory which name is starting with yii2 and thus the user is not a member of such a group 
 - yii2 has no corresponding role
 
+#### Create example role
+Look into the source code of the 
+
+Open a shell or a cmd and change to the base directory of your yii2 installation (where the composer.json is located).  
+Type in your shell:  
+    
+    cd C:\xampp\htdocs\basic
+    yii ldapcmd/create-example-role
+
+
+    !!!! TODO !!!!
+    A role with the name yii2_example_group was created in yii2.
+    Please create a group with the same name in Active Directory.
+    Assign the user you are using for the login to this group in Active Directory.    
