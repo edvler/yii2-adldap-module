@@ -11,7 +11,8 @@ But more details later.
 
 
 ## Task 1 - Basic installation
-### 1. Configure yii2-adldap-module as described in the main README.md. This means your LDAP servers, base_dn and so on are set in the web.conf (basic template) / main.conf (advanced template).
+### 1. Configure yii2-adldap-module as described in the main README.md.  
+This means your LDAP servers, base_dn and so on are set in the web.conf (basic template) / main.conf (advanced template).
 
 ### 2. Configure Database.  
 See http://www.yiiframework.com/doc-2.0/guide-start-databases.html#configuring-db-connection
@@ -68,6 +69,7 @@ If everythings okay you should see the username in upper right corner. At this p
 
 
 ## Task 2 - Configuration
+### General description
 Maybe you think: Configuration, what?? But there are severel possible ways to connect your Active Directory as you will see.
 
 **Before you start over there are some terms you have to understand:**  
@@ -92,5 +94,34 @@ If you leave the default configuration, the following is happening on login (and
 
 For a working group to role assignment you have to create the roles in yii2! The roles would NOT be automatically created.
 
-  
-  
+### Example for group configuration
+In Step 7 of Task 1 you are have already done a successfully hopefully. But the problem is that every user in Active Directory with a valid password a active Account now can login in yii2. Thats not a good solution.
+
+Before you continue read the the commets in source code starting at line 127.  
+https://github.com/edvler/yii2-adldap-module/blob/master/src/model/UserDbLdap.php#L127
+
+
+Now add the following to your config/params.php
+
+    return [
+        //...
+        'LDAP-Group-Assignment-Options' => [
+                'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/^(yii2|app)(.*)/", // a role has to be assign, which is starting with yii2 or with app
+                'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // Active Directory groups beginning with yii2 or app ar filtered and if a yii2 role with the same name exists the role would be added to the user
+                'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true, //add matches between groups and roles to the user
+                'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => false,
+                'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true, //Only remove groups matching regex REGEX_GROUP_MATCH_IN_LDAP
+            ],
+        //...
+    ];
+    
+The configuration does the same as the default configuration with **one exception!**
+ - The LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX is not null.
+ Now only users with roles assigned beginning with **yii2 OR app** can login!
+ 
+If you try to login again (please logout before) it will not work!
+Why?
+The answer is simple for two reasons:
+- You don't have a group in Active Directory which name is starting with yii2 and thus the user is not a member of such a group 
+- yii2 has no corresponding role
+
