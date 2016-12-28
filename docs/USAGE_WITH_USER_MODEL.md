@@ -153,6 +153,7 @@ Look into the source code of the function actionCreateExampleRole (see file @ven
 
 As you can see two permissions are created **(permissionDisplayDetailedAbout, permissionToUseContanctPage)** and assigend to the role 
 **yii2_example_group**.
+One addiontinal permission **permissionToSeeHome** is created and assigned to the role **yii2_see_home_group**.
 
 Open a shell or a cmd and change to the base directory of your yii2 installation (where the composer.json is located).  
 Type in your shell:  
@@ -162,9 +163,11 @@ Type in your shell:
 
 
     !!!! TODO !!!!
-    A role with the name yii2_example_group was created in yii2.
-    Please create a group with the same name in Active Directory.
-    Assign the user you are using for the login to this group in Active Directory.
+    Tow roles with the name yii2_example_group and yii2_see_home_group were created
+    in yii2.
+    Please create the groups with the same name in Active Directory.
+    Assign the user you are using for the login to this groups in Active Directory.
+
     
 #### Create Active Directory Group 
 Now go to your Active Directory Management Console and create a group with the same name as the role (**yii2_example_group**).
@@ -223,3 +226,10 @@ Modify the function beaviors() as bellow:
 
 
 The result: If you are not logged in and click on Home or Login, you should be redirected to the login page. If you are successfully logged in, the contact page should be displayed!
+
+If you are logged in and click on Home, you should get a **403** error.  
+Because the user is only member in **yii2_example_group**, which has the permission **(permissionDisplayDetailedAbout, permissionToUseContanctPage)** assigned.  
+To view the Home screen the permission **permissionToSeeHome** is needed which is assigned to role **yii2_see_home_group**.
+
+To get this role go to your Active Directory Management Console and create a group with the same name as the role (**yii2_see_home_group**).
+Make the user you are using for the login to a member of that group.
