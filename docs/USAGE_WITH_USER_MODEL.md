@@ -188,16 +188,19 @@ Place the following after the opening <div> tag or somewhere else in the file
         }
         ?>   
 
-##### Special About text only visible for users with permission "permissionToUseContanctPage"
+The result: If you are not logged in your About Page should not display the text above. If you are logged in, the "Here are some details, ..." should be displayed.
+
+
+##### Change the access to contact and home screen
 Open the file controllers/SiteController.php
-Modify the function beaviors as follows:
+Modify the function beaviors() as bellow:
 
     public function behaviors()
     {
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout','contact'],
+                'only' => ['logout','contact','index'],
                 'rules' => [
                     [
                         'actions' => ['logout'],
@@ -216,4 +219,7 @@ Modify the function beaviors as follows:
                     ],                     
                 ],
             ],
-            ],
+            //...
+
+
+The result: If you are not logged in and click on Home or Login, you should be redirected to the login page. If you are successfully logged in, the contact page should be displayed!
