@@ -174,3 +174,46 @@ Make the user you are using for the login to a member of that group.
 #### Test the Login
 Now you can go to the login in page of your yii installation (see upper right corner of the website). Use the user which you are made to a member of the group **yii2_example_group** in Active Directory.
 If everythings okay you should see the username in upper right corner.
+
+
+
+#### Try some permission stuff
+##### Special About text only visible for users with permission "permissionDisplayDetailedAbout"
+Open the file views/site/about.php  
+Place the following after the opening <div> tag or somewhere else in the file
+
+        <?php
+        if (\Yii::$app->user->can('permissionDisplayDetailedAbout')) {
+            echo "<h3>Here are some details, that are only visible if the login is successfull and the user has assigned the role <b>yii2_example_group</b>. After a successfull setup the group was assigned automatically</h3>";
+        }
+        ?>   
+
+##### Special About text only visible for users with permission "permissionToUseContanctPage"
+Open the file controllers/SiteController.php
+Modify the function beaviors as follows:
+
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['logout','contact'],
+                'rules' => [
+                    [
+                        'actions' => ['logout'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['contact'],
+                        'roles' => ['permissionToUseContanctPage'],
+                    ], 
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['permissionToSeeHome'],
+                    ],                     
+                ],
+            ],
+            ],
