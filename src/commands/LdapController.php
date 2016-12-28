@@ -25,11 +25,23 @@ class LdapController extends Controller
         $useContactPage->description = 'Permission to use the contanct page';
         $auth->add($useContactPage);
 
-        // add "yii2_example_group" role and give this role the "permissionDisplayDetailedAbout" permission
+        // add "yii2_example_group" role and give this role the "permissionDisplayDetailedAbout" and "permissionToUseContanctPage" permission
         $yii2ExampleGroup = $auth->createRole('yii2_example_group');
         $auth->add($yii2ExampleGroup);
         $auth->addChild($yii2ExampleGroup, $displayDetailedAbout);
         $auth->addChild($yii2ExampleGroup, $useContactPage);
+        
+        
+        
+        // add "permissionToUseContanctPage" permission
+        $useHomePage = $auth->createPermission('permissionToSeeHome');
+        $useHomePage->description = 'Permission to use the home page';
+        $auth->add($useHomePage);
+
+        // add "yii2_see_home_group" role and give this role the "permissionToSeeHome" permission
+        $yii2HomeGroup = $auth->createRole('yii2_see_home_group');
+        $auth->add($yii2HomeGroup);
+        $auth->addChild($yii2HomeGroup, $useHomePage);    
         
         echo "\n\n!!!! TODO !!!!\nA role with the name yii2_example_group was created in yii2.\nPlease create a group with the same name in Active Directory.\nAssign the user you are using for the login to this group in Active Directory.\n";
     }    
