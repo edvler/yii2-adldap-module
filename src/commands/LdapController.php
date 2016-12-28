@@ -43,7 +43,7 @@ class LdapController extends Controller
         $auth->add($yii2HomeGroup);
         $auth->addChild($yii2HomeGroup, $useHomePage);    
         
-        echo "\n\n!!!! TODO !!!!\nA role with the name yii2_example_group was created in yii2.\nPlease create a group with the same name in Active Directory.\nAssign the user you are using for the login to this group in Active Directory.\n";
+        echo "\n\n!!!! TODO !!!!\nTow roles with the name yii2_example_group and yii2_see_home_group were created in yii2.\nPlease create the groups with the same name in Active Directory.\nAssign the user you are using for the login to this groups in Active Directory.\n";
     }    
     
 }
