@@ -1,60 +1,62 @@
-## Examples for usage of the Adldap2 Module without a user model.
+## Usage method 1: Simple usage without a user model
 
-This code can be added in any class to query or update informations from the Active Directory. For example in a Controller or in a View.
-
-Authenticate user
+### Authenticate user  
 https://github.com/Adldap2/Adldap2/blob/v5.2/docs/GETTING-STARTED.md
 
-	$un = 'testuser';
-	$pw = 'VeryStrongPw';
-	if(\Yii::$app->ldap->authenticate($un,$pw)) {
-	    echo 'User successfully authenticated';
-	} else {
-	    echo 'User or Password wrong';
-	}
+```php
+$un = 'testuser';
+$pw = 'VeryStrongPw';
+if(\Yii::$app->ldap->authenticate($un,$pw)) {
+    echo 'User successfully authenticated';
+} else {
+    echo 'User or Password wrong';
+}
+```
 
-
-Retrive all informations about a user
+### Retrive all informations about a user  
 https://github.com/Adldap2/Adldap2/blob/v5.2/docs/classes/USERS.md
 or https://github.com/Adldap2/Adldap2/blob/v5.2/docs/SEARCH.md
 
-	$un = 'testuser';
-	$user = \Yii::$app->ldap->users()->find($un);
-	
-	//print all informations of the user object
-	echo '<pre>';
-	echo var_dump($user);
-	echo '</pre>'; 
+```php
+$un = 'testuser';
+$user = \Yii::$app->ldap->users()->find($un);
 
-Check if user is in group
-with foreach
+//print all informations of the user object
+echo '<pre>';
+echo var_dump($user);
+echo '</pre>'; 
+```
 
-	$un = 'testuser';
-	$user = \Yii::$app->ldap->users()->find($un);
+### Check if user is in group with foreach  
 
-	$gn = 'the-group-name';
-	foreach($user->getMemberOf() as $group)
-	{
-	    if($gn == $group->getName()) {
-	    	echo 'TRUE';
-	    }
-	}
+```php
+$un = 'testuser';
+$user = \Yii::$app->ldap->users()->find($un);
 
-with inGroup function
+$gn = 'the-group-name';
+foreach($user->getMemberOf() as $group)
+{
+    if($gn == $group->getName()) {
+	echo 'TRUE';
+    }
+}
+```
 
-	$un = 'testuser';
-	$user = \Yii::$app->ldap->users()->find($un);
+### Check if user is in group with inGroup() function  
 
-	$gn = 'the-group-name';
-	if ($user->inGroup($gn)) {
-	    echo 'User in Group ' . $gn;
-	} else {
-	    echo 'User NOT in Group ' . $gn;
-	}
+```php
+$un = 'testuser';
+$user = \Yii::$app->ldap->users()->find($un);
 
-...
+$gn = 'the-group-name';
+if ($user->inGroup($gn)) {
+    echo 'User in Group ' . $gn;
+} else {
+    echo 'User NOT in Group ' . $gn;
+}
+```
 
-## DOCUMENTATION
-yii2-adldap-module is only a wrapper class. Feel free to learn more about the underlying adLDAP.
+### Further documentation of other functions
+yii2-adldap-module is only a wrapper class. The examples above are all taken from the official documentation of the Adldap2 repository.
 
-You can find the website at https://github.com/Adldap2/Adldap2/tree/v5.2/docs
+You can find the docs at https://github.com/Adldap2/Adldap2/tree/v5.2/docs
