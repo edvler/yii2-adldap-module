@@ -63,7 +63,7 @@ See official documentation for all config options.
 https://github.com/Adldap2/Adldap2/blob/v5.2/docs/CONFIGURATION.md
 
 
-## Usage
+## Usage - Method 1 and/or Method 2
 
 ### Usage method 1: Simple usage without a user model
 If you are need to query some informations for a user from the Active Directory this would be best way.
@@ -75,10 +75,13 @@ You only call the the component as usual.
 $un = 'testuser';
 $pw = 'VeryStrongPw';
 $user = \Yii::$app->ldap->users()->find($un);
+print_r($user); //print all informations retrieved from Active Directory
 //...
 ```
 
 **Further Documentation with examples:** [docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
+
+---
 
 ### Usage method 2: Deep integration into the yii2 framework with a user model
 The second method gives you the ability to authenticate users against Active Directory with a special user model. It intgerates very well into the RBAC security concept of yii2 (http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac).
