@@ -39,7 +39,7 @@ yii migrate --migrationPath=@yii/rbac/migrations
 
 ### 4. Apply UserDbLdap Migrations. Execute the following command on your shell or cmd
 ```
-yii migrate --migrationPath=@Edvlerblog/migrations
+yii migrate --migrationPath=@Edvlerblog/Adldap2/migrations
 ```
 
 ### 5. Change the identity class in your web.conf (basic template) / main.conf (advanced template).
@@ -47,7 +47,7 @@ yii migrate --migrationPath=@Edvlerblog/migrations
 'components' => [
     //...
     'user' => [
-        'identityClass' => 'Edvlerblog\model\UserDbLdap',
+        'identityClass' => 'Edvlerblog\Adldap2\model\UserDbLdap',
         //...
     ],
     //...
@@ -59,7 +59,7 @@ yii migrate --migrationPath=@Edvlerblog/migrations
 public function getUser()
 {
     if ($this->_user === false) {
-        $this->_user = \Edvlerblog\model\UserDbLdap::findByUsername($this->username);
+        $this->_user = \Edvlerblog\Adldap2\model\UserDbLdap::findByUsername($this->username);
     }
 
     return $this->_user;
@@ -72,7 +72,7 @@ public function getUser()
 'controllerMap' => [
     //...
     'ldapcmd' => [
-        'class' => 'Edvlerblog\commands\LdapController',
+        'class' => 'Edvlerblog\Adldap2\commands\LdapController',
     ],
     //...
 ],
