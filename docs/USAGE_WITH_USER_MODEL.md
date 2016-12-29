@@ -23,71 +23,99 @@ http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac
   This has to be done: (if you don't know why and what you are doing read the link above!!)  
   
   Execute the rbac migrations in a shell or cmd
-
-        yii migrate --migrationPath=@yii/rbac/migrations
+```
+yii migrate --migrationPath=@yii/rbac/migrations
+```
 
   Add the authManager class to your components.
-
-        'components' => [
-            //...
-              'authManager' => [
-                  'class' => 'yii\rbac\DbManager',
-              ],
-            //...
+```php
+  'components' => [
+      //...
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
+      //...
+```
 
 ### 4. Apply UserDbLdap Migrations. Execute the following command on your shell or cmd
-
-        yii migrate --migrationPath=@Edvlerblog/migrations
+```
+yii migrate --migrationPath=@Edvlerblog/migrations
+```
 
 ### 5. Change the identity class in your web.conf (basic template) / main.conf (advanced template).
+```php
+'components' => [
+    //...
+    'user' => [
+        'identityClass' => 'Edvlerblog\model\UserDbLdap',
+        //...
+    ],
+    //...
+```
 
-        'components' => [
-            //...
-            'user' => [
-                'identityClass' => 'Edvlerblog\model\UserDbLdap',
-                //...
-            ],
-            //...
-        
 ### 6. In the basic template change the models/LoginForm.php to use the new identity class.
+```php
+//...
+public function getUser()
+{
+    if ($this->_user === false) {
+        $this->_user = \Edvlerblog\model\UserDbLdap::findByUsername($this->username);
+    }
 
-        //...
-        public function getUser()
-        {
-            if ($this->_user === false) {
-                $this->_user = \Edvlerblog\model\UserDbLdap::findByUsername($this->username);
-            }
-
-            return $this->_user;
-        }
-        //...
+    return $this->_user;
+}
+//...
+```
 
 ### 7. Add the LdapController to the controllerMap in the config/console.php (basic template)
-
-        'controllerMap' => [
-            //...
-            'ldapcmd' => [
-                'class' => 'Edvlerblog\commands\LdapController',
-            ],
-            //...
-        ],
-        
+```php
+'controllerMap' => [
+    //...
+    'ldapcmd' => [
+        'class' => 'Edvlerblog\commands\LdapController',
+    ],
+    //...
+],
+```        
 Open a shell or a cmd and change to the base directory of your yii2 installation (where the composer.json is located).  
-Type in your shell:  
-**yii**
-You should see a ldapcmd entry with the commands ldapcmd/create-example-role and others.  
+A ldapcmd entry should be visible.
+```cmd
+yii
+
+
+This is Yii version 2.0.10.
+
+The following commands are available:
+
+...
+...
+
+- ldapcmd
+    ldapcmd/create-example-role  Create a role with the name yii2_example_group
+                                 and assign the permissions
+                                 permissionDisplayDetailedAbout and
+                                 permissionToUseContanctPage
+    ldapcmd/import-all-users     Import all users from LDAP, assign roles and
+                                 account status. Run this command with cron or
+                                 another scheduler every X minuten/hours/days.
+
+...
+...
+
+```
+
 
 ### 8. Test the Login of your basic app.  
 Now you can go to the login in page of your yii installation (see upper right corner of the website). You can use any Active Directory user which is able to login on the windows login of your PC.  
 If everythings okay you should see the username in upper right corner.
 
-    You can do  
-    select * from users  
-    to check if a user was inserted on login.
+> You can do  
+> select * from users  
+> to check if a user was inserted on login.
     
-    With 
-    SELECT * FROM auth_assignment;
-    you can check if any roles where assigned to your user on login (it is normal that no roles assigned at this point!)
+> With 
+> SELECT * FROM auth_assignment;
+> you can check if any roles where assigned to your user on login (it is normal that no roles assigned at this point!)
 
 
 ## Task 2 - Configuration
@@ -124,19 +152,19 @@ Before you continue read the the commets in source code starting at line 125. (s
 
 #### Login only possible when a role is assigned to the user
 Now add the following to your config/params.php
-
-    return [
-        //...
-        'LDAP-Group-Assignment-Options' => [
-                'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/^(yii2|app)(.*)/", // a role has to be assign, which is starting with yii2 or with app
-                'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // Active Directory groups beginning with yii2 or app ar filtered and if a yii2 role with the same name exists the role would be added to the user
-                'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true, //add matches between groups and roles to the user
-                'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => false,
-                'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true, //Only remove groups matching regex REGEX_GROUP_MATCH_IN_LDAP
-            ],
-        //...
-    ];
-    
+```php
+return [
+    //...
+    'LDAP-Group-Assignment-Options' => [
+            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/^(yii2|app)(.*)/", // a role has to be assign, which is starting with yii2 or with app
+            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // Active Directory groups beginning with yii2 or app ar filtered and if a yii2 role with the same name exists the role would be added to the user
+            'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true, //add matches between groups and roles to the user
+            'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => false,
+            'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true, //Only remove groups matching regex REGEX_GROUP_MATCH_IN_LDAP
+        ],
+    //...
+];
+``` 
 The configuration does the same as the default configuration with **one exception!**
  - The LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX is not null.
  Now only users with roles assigned beginning with **yii2 OR app** can login!
@@ -156,17 +184,17 @@ One addiontinal permission **permissionToSeeHome** is created and assigned to th
 
 Open a shell or a cmd and change to the base directory of your yii2 installation (where the composer.json is located).  
 Type in your shell:  
-    
-    cd C:\xampp\htdocs\basic
-    yii ldapcmd/create-example-role
+```cmd
+cd C:\xampp\htdocs\basic
+yii ldapcmd/create-example-role
 
 
-    !!!! TODO !!!!
-    Tow roles with the name yii2_example_group and yii2_see_home_group were created
-    in yii2.
-    Please create the groups with the same name in Active Directory.
-    Assign the user you are using for the login to this groups in Active Directory.
-
+!!!! TODO !!!!
+Tow roles with the name yii2_example_group and yii2_see_home_group were created
+in yii2.
+Please create the groups with the same name in Active Directory.
+Assign the user you are using for the login to this groups in Active Directory.
+```
     
 #### Create Active Directory Group 
 Now go to your Active Directory Management Console and create a group with the same name as the role (**yii2_example_group**).
@@ -183,46 +211,46 @@ If everythings okay you should see the username in upper right corner.
 ##### Special About text only visible for users with permission "permissionDisplayDetailedAbout"
 Open the file views/site/about.php  
 Place the following after the opening <div> tag or somewhere else in the file
-
-        <?php
-        if (\Yii::$app->user->can('permissionDisplayDetailedAbout')) {
-            echo "<h3>Here are some details, that are only visible if the login is successfull and the user has assigned the role <b>yii2_example_group</b>. After a successfull setup the group was assigned automatically</h3>";
-        }
-        ?>   
-
+```php
+<?php
+if (\Yii::$app->user->can('permissionDisplayDetailedAbout')) {
+    echo "<h3>Here are some details, that are only visible if the login is successfull and the user has assigned the role <b>yii2_example_group</b>. After a successfull setup the group was assigned automatically</h3>";
+}
+?>   
+```
 The result: If you are not logged in your About Page should not display the text above. If you are logged in, the "Here are some details, ..." should be displayed.
 
 
 ##### Change the access to contact and home screen
 Open the file controllers/SiteController.php
 Modify the function beaviors() as bellow:
-
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout','contact','index'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                    [
-                        'allow' => true,
-                        'actions' => ['contact'],
-                        'roles' => ['permissionToUseContanctPage'],
-                    ], 
-                    [
-                        'allow' => true,
-                        'actions' => ['index'],
-                        'roles' => ['permissionToSeeHome'],
-                    ],                     
+```php
+public function behaviors()
+{
+    return [
+        'access' => [
+            'class' => AccessControl::className(),
+            'only' => ['logout','contact','index'],
+            'rules' => [
+                [
+                    'actions' => ['logout'],
+                    'allow' => true,
+                    'roles' => ['@'],
                 ],
+                [
+                    'allow' => true,
+                    'actions' => ['contact'],
+                    'roles' => ['permissionToUseContanctPage'],
+                ], 
+                [
+                    'allow' => true,
+                    'actions' => ['index'],
+                    'roles' => ['permissionToSeeHome'],
+                ],                     
             ],
-            //...
-
+        ],
+        //...
+```
 
 The result: If you are not logged in and click on Home or Login, you should be redirected to the login page. If you are successfully logged in, the contact page should be displayed!
 
