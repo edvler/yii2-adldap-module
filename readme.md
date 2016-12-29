@@ -78,12 +78,12 @@ $user = \Yii::$app->ldap->users()->find($un);
 //...
 ```
 
-Documentation: [docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
+**Further Documentation with examples:** [docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
 
 ### Usage method 2: Deep integration into the yii2 framework with a user model
 The second method gives you the ability to authenticate users against Active Directory with a special user model. It intgerates very well into the RBAC security concept of yii2 (http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac).
 
-If you use the Edvlerblog\model\UserDbLdap class you can do things like login with a user into yii2 **without createing them** in yii2. Tasks like creating a user, assigning roles and check password against Active Directory all automatically done from Edvlerblog\model\UserDbLdap class.  
+If you use the [Edvlerblog\model\UserDbLdap.php](src/model/UserDbLdap.php) class you can do things like login with a user into yii2 **without createing them** in yii2. Tasks like creating a user, assigning roles and check password against Active Directory all automatically done from [Edvlerblog\model\UserDbLdap.php](src/model/UserDbLdap.php) class.  
 
 For example imagine the following:  
 - You create a user in Active Directory and assign this user to a group starting with **yii2_** (e.g. yii2_example_group).
@@ -92,4 +92,4 @@ For example imagine the following:
 If you try to login with your new user, the user is created **automatically** in yii2 and role yii2_example_group is assigned **automatically** on login.  
 For the user this is transparent. The only feedback to the user is a successull login and that it is possible to use the functions which he has permissions to access.
 
-Documentation: [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
+**Further Documentation with setup and examples:** [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
