@@ -80,8 +80,8 @@ public function getUser()
 Open a shell or a cmd and change to the base directory of your yii2 installation (where the composer.json is located).  
 A ldapcmd entry should be visible.
 ```cmd
+cd C:\xampp\htdocs\basic
 yii
-
 
 This is Yii version 2.0.10.
 
