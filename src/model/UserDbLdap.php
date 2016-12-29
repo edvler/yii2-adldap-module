@@ -688,7 +688,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             if(count($userObjectsFound) != 1) {
                 $this->ldapUserObject = null;
             } else {
-                $this->ldapUserObject = $userObjectsFound[0];
+                $this->ldapUserObject = $userObjectsFound;
             }
         }
         
