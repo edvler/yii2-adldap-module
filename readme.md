@@ -49,65 +49,65 @@ Add this code in your components section of the application configuration (eg. c
 	     * But it's enough to only define the "default" provider!
 	     */
 	    'providers' => [
-		/*
-		 * Always add a default provider!
-		 * 
-		 * You can get the provider with:
-		 * $provider = \Yii::$app->ad->getDefaultProvider();
-		 * or with $provider = \Yii::$app->ad->getProvider('default');
-		 */
-		'default' => [
-		    // Connect this provider on initialisation of the LdapWrapper Class automatically
-		    'autoconnect' => true,
+			/*
+			 * Always add a default provider!
+			 * 
+			 * You can get the provider with:
+			 * $provider = \Yii::$app->ad->getDefaultProvider();
+			 * or with $provider = \Yii::$app->ad->getProvider('default');
+			 */
+			'default' => [
+			    // Connect this provider on initialisation of the LdapWrapper Class automatically
+			    'autoconnect' => true,
 
-		    // The config has to be defined as described in the Adldap2 documentation.
-		    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md
-		    'config' => [
-			// Your account suffix, for example: matthias.maderer@example.lan
-			'account_suffix'        => '@example.lan',
+			    // The config has to be defined as described in the Adldap2 documentation.
+			    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md
+			    'config' => [
+				// Your account suffix, for example: matthias.maderer@example.lan
+				'account_suffix'        => '@example.lan',
 
-			// You can use the host name or the IP address of your controllers.
-			'domain_controllers'    => ['server01.example.lan', 'server02.example.lan'],
+				// You can use the host name or the IP address of your controllers.
+				'domain_controllers'    => ['server01.example.lan', 'server02.example.lan'],
 
-			// Your base DN. This is usually your account suffix.
-			'base_dn'               => 'dc=example,dc=lan',
+				// Your base DN. This is usually your account suffix.
+				'base_dn'               => 'dc=example,dc=lan',
 
-			// The account to use for querying / modifying users. This
-			// does not need to be an actual admin account.
-			'admin_username'        => 'username_ldap_access',
-			'admin_password'        => 'password_ldap_access!',
-		    ]
-		],
+				// The account to use for querying / modifying users. This
+				// does not need to be an actual admin account.
+				'admin_username'        => 'username_ldap_access',
+				'admin_password'        => 'password_ldap_access!',
+			    ]
+			],
 
-		/*
-		 * Another Provider
-		 * You don't have to another provider if you don't need it. It's just an example.
-		 * 
-		 * You can get the provider with:
-		 * or with $provider = \Yii::$app->ad->getProvider('another_provider');
-		 */
-		'another_provider' => [
-		    // Connect this provider on initialisation of the LdapWrapper Class automatically
-		    'autoconnect' => false,
+			/*
+			 * Another Provider
+			 * You don't have to another provider if you don't need it. It's just an example.
+			 * 
+			 * You can get the provider with:
+			 * or with $provider = \Yii::$app->ad->getProvider('another_provider');
+			 */
+			'another_provider' => [
+			    // Connect this provider on initialisation of the LdapWrapper Class automatically
+			    'autoconnect' => false,
 
-		    // The config has to be defined as described in the Adldap2 documentation.
-		    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md                
-		    'config' => [
-			// Your account suffix, for example: matthias.maderer@test.lan
-			'account_suffix'        => 'test.lan',
+			    // The config has to be defined as described in the Adldap2 documentation.
+			    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md                
+			    'config' => [
+				// Your account suffix, for example: matthias.maderer@test.lan
+				'account_suffix'        => 'test.lan',
 
-			// You can use the host name or the IP address of your controllers.
-			'domain_controllers'    => ['server1.test.lan', 'server2'],
+				// You can use the host name or the IP address of your controllers.
+				'domain_controllers'    => ['server1.test.lan', 'server2'],
 
-			// Your base DN. This is usually your account suffix.
-			'base_dn'               => 'dc=test,dc=lan',
+				// Your base DN. This is usually your account suffix.
+				'base_dn'               => 'dc=test,dc=lan',
 
-			// The account to use for querying / modifying users. This
-			// does not need to be an actual admin account.
-			'admin_username'        => 'username_ldap_access',
-			'admin_password'        => 'password_ldap_access',
-		    ] // close config
-		], // close provider
+				// The account to use for querying / modifying users. This
+				// does not need to be an actual admin account.
+				'admin_username'        => 'username_ldap_access',
+				'admin_password'        => 'password_ldap_access',
+			    ] // close config
+			], // close provider
 	    ], // close providers array
 	], //close ad
 ```	
