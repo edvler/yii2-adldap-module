@@ -69,7 +69,7 @@ echo '</pre>';
 See sourcecode function getMememberOf() or inGroup().  
 https://github.com/Adldap2/Adldap2/blob/v6.1/src/Models/Traits/HasMemberOfTrait.php
 
-### Check if user is in group with getMemberOf() function.
+#### Check if user is in group with getMemberOf() function.
 ```php
 $un = 'testuser';
 $user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
@@ -82,7 +82,7 @@ foreach($user->getMemberOf() as $group)
     }
 }
 ```
-### Check if user is in group with inGroup() function.
+#### Check if user is in group with inGroup() function.
 ```php
 $un = 'testuser';
 $user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
