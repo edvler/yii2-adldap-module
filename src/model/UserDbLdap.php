@@ -7,6 +7,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 use Adldap\Objects\AccountControl;
+use Adldap\Utilities;
 
 /**
  * User model with database integration and LDAP synchronistation.
@@ -348,7 +349,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             //Just create to get synchronisation options
             $userObjectDb = new UserDbLdap();
             
-            if($userObjectDb->getSyncOptions("ON_LOGIN_CREATE_USER") == true) {
+            if(self::getSyncOptions("ON_LOGIN_CREATE_USER", $userObjectDb->individualSyncOptions) == true) {
                 $userObjectDb = static::createNewUser($username);
             } else {
                 $userObjectDb = null;
@@ -357,12 +358,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //Refresh group assignments of user if found in database?
-        if ($userObjectDb->username != null && $userObjectDb->getSyncOptions("ON_LOGIN_REFRESH_GROUP_ASSIGNMENTS") == true) {
+        if ($userObjectDb->username != null && self::getSyncOptions("ON_LOGIN_REFRESH_GROUP_ASSIGNMENTS", $userObjectDb->individualSyncOptions) == true) {
             $userObjectDb->updateGroupAssignment();
         }
         
         //Refresh account status of user if found in database?
-        if ($userObjectDb->username != null && $userObjectDb->getSyncOptions("ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS") == true && $userObjectDb->getSyncOptions("ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS") == false) {
+        if ($userObjectDb->username != null && self::getSyncOptions("ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS", $userObjectDb->individualSyncOptions) == true && self::getSyncOptions("ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS", $userObjectDb->individualSyncOptions) == false) {
             $userObjectDb->updateAccountStatus();
         }        
         
@@ -389,23 +390,23 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //Refresh account status on every request?
-        if ($userObjectDb->username != null && $userObjectDb->getSyncOptions("ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS") == true) {
+        if ($userObjectDb->username != null && self::getSyncOptions("ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS", $userObjectDb->individualSyncOptions) == true) {
             $userObjectDb->updateAccountStatus();
         }
         
         //Login only possible if a role is assigned which matches the LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX regex
-        if ($userObjectDb->status == self::STATUS_ENABLED && $userObjectDb->getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX") != null) {
+        if ($userObjectDb->status == self::STATUS_ENABLED && self::getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX",$userObjectDb->individualGroupAssignmentOptions) != null) {
             $rolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($userObjectDb->getId());
             
             foreach ($rolesAssignedToUser as $role) {
-                if(preg_match($userObjectDb->getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX"),$role->name) == true) {
+                if(preg_match(self::getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX",$userObjectDb->individualGroupAssignmentOptions),$role->name) == true) {
                     return $userObjectDb;
                 }
             }
         }
         
         //Login possible if no role is assigned
-        if ($userObjectDb->status == self::STATUS_ENABLED && $userObjectDb->getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX") == null) {
+        if ($userObjectDb->status == self::STATUS_ENABLED && self::getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX",$userObjectDb->individualGroupAssignmentOptions) == null) {
             return $userObjectDb;
         }
         
@@ -477,12 +478,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * @return mixed The value of the option key
      * @throws \yii\base\Exception if option key is not found in the given option set.
      */
-    public function getSyncOptions($getOptionByName) {
+    public static function getSyncOptions($getOptionByName, $individualSyncOptions = null) {
         $syncOptionsUsed = null;
         
-        if($this->individualSyncOptions != null) {
-            $syncOptionsUsed = $this->individualSyncOptions;
-        } else if(isset(\Yii::$app->params["LDAP-User-Sync-Options"]) && $this->individualSyncOptions == null ) {
+        if($individualSyncOptions != null) {
+            $syncOptionsUsed = $individualSyncOptions;
+        } else if(isset(\Yii::$app->params["LDAP-User-Sync-Options"]) && $individualSyncOptions == null ) {
             $syncOptionsUsed = \Yii::$app->params["LDAP-User-Sync-Options"];
         } else {
             $syncOptionsUsed = self::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK;
@@ -513,12 +514,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * @return mixed The value of the option key
      * @throws \yii\base\Exception if option key is not found in the given option set.
      */
-    public function getGroupAssigmentOptions($getOptionByName) {
+    public static function getGroupAssigmentOptions($getOptionByName, $individualGroupAssignmentOptions = null) {
         $groupOptionsUsed = null;
         
-        if(isset($this->individualGroupAssignmentOptions) != null) {
-            $groupOptionsUsed = $this->individualGroupAssignmentOptions;
-        } else if(isset(\Yii::$app->params["LDAP-Group-Assignment-Options"]) && $this->individualGroupAssignmentOptions == null ) {
+        if(isset($individualGroupAssignmentOptions) != null) {
+            $groupOptionsUsed = $userDbLdapObject->individualGroupAssignmentOptions;
+        } else if(isset(\Yii::$app->params["LDAP-Group-Assignment-Options"]) && $individualGroupAssignmentOptions != null ) {
             $groupOptionsUsed = \Yii::$app->params["LDAP-Group-Assignment-Options"];
         } else {
             $groupOptionsUsed = self::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX;
@@ -617,21 +618,22 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             return null;
         }
         
-        $ldapGroups = $ldapUser->getMemberOf();
+        $ldapGroups = $ldapUser->getAttribute("memberof");
+        
         $ldapGroupsConverted = [];
+        foreach ($ldapGroups as $groupDn) {
+            $n = Utilities::explodeDn($groupDn)[0];
+            array_push($ldapGroupsConverted, $n);
+        }
+        
         $yiiAviliableRoles = \Yii::$app->authManager->getRoles();
         $rolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($this->getId());
         
         //Map groups from LDAP to roles and add to user object.
-        if ($this->getGroupAssigmentOptions("ADD_GROUPS_FROM_LDAP_MATCHING_REGEX") == true) {
-            foreach ($ldapGroups as $ldapGroup) {
-                $gn = $ldapGroup->getCommonName();
-                $ldapGroupsConverted[$gn] = false; //index ldap group array for the further comparisons
-                
-                if(preg_match($this->getGroupAssigmentOptions("REGEX_GROUP_MATCH_IN_LDAP"),$gn) == true) {
-                    $ldapGroupsConverted[$gn] = true;
-                    
-                    if(isset($yiiAviliableRoles[$gn]) && !isset($rolesAssignedToUser[$gn])) {
+        if (self::getGroupAssigmentOptions("ADD_GROUPS_FROM_LDAP_MATCHING_REGEX",$this->individualGroupAssignmentOptions) == true) {
+            foreach ($ldapGroupsConverted as $gn) {
+                if(preg_match(self::getGroupAssigmentOptions("REGEX_GROUP_MATCH_IN_LDAP",$this->individualGroupAssignmentOptions),$gn) == true) {                    
+                    if(array_key_exists($gn,$yiiAviliableRoles) && !array_key_exists($gn,$rolesAssignedToUser)) {
                         $auth = \Yii::$app->authManager;
                         $role = $auth->getRole($gn);
                         $auth->assign($role, $this->getId());                
@@ -641,9 +643,9 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //Remove all roles from user object which are not in LDAP
-        if ($this->getGroupAssigmentOptions("REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP") == true && $this->getGroupAssigmentOptions("REMOVE_ONLY_GROUPS_MATCHING_REGEX") == false) {
+        if (self::getGroupAssigmentOptions("REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP",$this->individualGroupAssignmentOptions) == true && self::getGroupAssigmentOptions("REMOVE_ONLY_GROUPS_MATCHING_REGEX",$this->individualGroupAssignmentOptions) == false) {
             foreach ($rolesAssignedToUser as $role) {
-                if(isset($ldapGroupsConverted[$role->name]) == false) {
+                if(in_array($role->name,$ldapGroupsConverted) == false) {
                         $auth = \Yii::$app->authManager;
                         $auth->revoke($role, $this->getId());                     
                 }
@@ -651,11 +653,11 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //Remove all roles from user object which are matching the regex and are not in LDAP
-        if ($this->getGroupAssigmentOptions("REMOVE_ONLY_GROUPS_MATCHING_REGEX") == true) {
+        if (self::getGroupAssigmentOptions("REMOVE_ONLY_GROUPS_MATCHING_REGEX",$this->individualGroupAssignmentOptions) == true) {
             foreach ($rolesAssignedToUser as $role) {
                 $roleName = $role->name;
                 
-                if(preg_match($this->getGroupAssigmentOptions("REGEX_GROUP_MATCH_IN_LDAP"),$roleName) == true && isset($ldapGroupsConverted[$roleName]) == false) {
+                if(preg_match(self::getGroupAssigmentOptions("REGEX_GROUP_MATCH_IN_LDAP",$this->individualGroupAssignmentOptions),$roleName) == true && in_array($roleName,$ldapGroupsConverted) == false) {
                             $auth = \Yii::$app->authManager;
                             $auth->revoke($role, $this->getId());
                 }
