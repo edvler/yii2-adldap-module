@@ -3,8 +3,7 @@ namespace Edvlerblog\Adldap2\commands;
 
 use Yii;
 use yii\console\Controller;
-use app\edvlerblog\ldap\LdapDbUser;
-use Adldap\Objects\AccountControl;
+use Adldap\Utilities;
 
 class LdapController extends Controller
 {
@@ -45,5 +44,46 @@ class LdapController extends Controller
         
         echo "\n\n!!!! TODO !!!!\nTow roles with the name yii2_example_group and yii2_see_home_group were created in yii2.\nPlease create the groups with the same name in Active Directory.\nAssign the user you are using for the login to this groups in Active Directory.\n";
     }    
+    
+    /**
+     * Import all users from LDAP, assign roles and account status. Run this command with cron or another scheduler every X minuten/hours/days.
+     */
+    public function actionImportAllUsers()
+    {
+        \Yii::warning("-- Starting import from Active Directory --");
+        $results = \Yii::$app->ad->getDefaultProvider()->
+                search()->
+                select("samaccountname")->
+                where('objectClass','=','user')->
+                where('objectCategory','=','person')->
+                paginate(999);
+        
+        $userNamesToAdd = [];
+        foreach($results->getResults() as $ldapUser) {
+            $accountName = $ldapUser->getAttribute("samaccountname",0);
+            if ($accountName != null) {
+                array_push($userNamesToAdd, $accountName);
+            }
+        }
+
+        
+        $c=0;
+        \Yii::warning("-- Found " . count ($userNamesToAdd) . " users --");
+        foreach ($userNamesToAdd as $userName) {
+            $c++;
+            
+            \Yii::warning("-- Working on user " . $userName . " --");
+            $userObject = \Edvlerblog\Adldap2\model\UserDbLdap::createOrRefreshUser($userName);
+            
+            if ($userObject != null) {
+                \Yii::warning("User " . $userName . " created");
+            } else {
+                \Yii::warning("User " . $userName . " NOT created");
+            }
+            
+        }
+        \Yii::warning("-- End import from Active Directory --");
+        
+     }    
     
 }
