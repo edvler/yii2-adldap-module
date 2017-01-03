@@ -23,29 +23,31 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
 {        
     /**
      * Constants starting with SYNC_OPTIONS_****
-     * This constant defines all options needed, that are influence the login behavior
+     * This constant defines all options needed, that are belogn to the login behavior
      * of the UserDbLdap.
      * 
      * The main purpose of this constant is to define when a LDAP query is done and when not.
      * For example you can decide, if a user is not found database, if a LDAP query should search
-     * for the user, or if the login simply fails.
+     * for the user and create it, or if the login simply fails.
      * Another example is, if a LDAP query should be issued on login to refresh the group assignments.
      * 
      * As you can imagine updating group assignments and updating the account status could be a 
      * time consuming task. This is why you can define here what should be done on every site request
      * and on login.
      * 
-     * If you run a backend task, which querys the informations from active directory every X minutes with cron or a another scheduler,
-     * you can completly deactivate all refreshs on login.
+     * If you run a backend task, which querys the informations 
+     * from active directory every X minutes with cron or a another scheduler,
+     * you can completly deactivate all refreshs on login. See constant SYNC_OPTIONS_TEMPLATE_ONLY_BACKEND_TASK
+     * for example.
      * 
-     * You can configure your own settings in the config/params.php
+     * You can configure your own settings in the config/params.php too.
      * 
      *   With predefined constant
      *   
      *   return [
      *       //...
-     *       'LDAP-User-Sync-Options' => Edvlerblog\model\UserDbLdap::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK,
-     *       'LDAP-Group-Assignment-Options' => Edvlerblog\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
+     *       'LDAP-User-Sync-Options' => Edvlerblog\Adldap2\model\UserDbLdapDbLdap::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK,
+     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdapDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
      *       //...
      *   ];
      * 
@@ -59,11 +61,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *                                       'ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS' => true,
      *                                       'ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS' => false,
      *                                   ],
-     *       'LDAP-Group-Assignment-Options' => Edvlerblog\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
+     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdapDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
      *       //...
      *   ]; 
      * 
      */
+    
     
     /**
      * Constant SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK
@@ -114,6 +117,25 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             'ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS' => false,
         ];
     
+    
+    
+    /**
+     * Constant SYNC_OPTIONS_TEMPLATE_ONLY_BACKEND_TASK
+     * 
+     * On login nothing would be done. If the user doesn't exists or the roles assigned to 
+     * the user are not allowed to login.
+     * 
+     * You has to configure the backend task, which imports all users from active directory.
+     * Please configure the basic's as described here in the folder docs/USAGE_WITH_USER_MODEL.md.
+     * 
+     * Follow this steps to run the backend task:
+     * cmd> cd c:\xampp\htdocs\basic
+     * cmd> yii ldapcmd/import-all-users
+     * 
+     * This command should import all users, which are matching the configured group assignment options.
+     * See GROUP_ASSIGNMENT_** options.
+     * 
+     */    
     const SYNC_OPTIONS_TEMPLATE_ONLY_BACKEND_TASK = [
             'ON_LOGIN_CREATE_USER' => false,
             'ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS' => false,
@@ -142,7 +164,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *   
      *   return [
      *       //...
-     *       'LDAP-Group-Assignment-Options' => Edvlerblog\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE,
+     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdapDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE,
      *       //...
      *   ];
      * 
@@ -172,6 +194,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * $regex = "/(yii2|app)/"; // Evaluates to true if the groupname contains yii2. Example group_yii2_post gives true, Example group_app_post gives true,
      * $regex = "/(.*)/"; // Evaluates to true on every groupname
      */   
+    
     
     /**
      * GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX constant
@@ -241,6 +264,13 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true,
         ];    
 
+    
+    /**
+     * GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE constant
+     * Same as GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX.
+     * 
+     * The only differnce is, that a login is only allowed with a role assigned.
+     */    
     const GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE = [
             'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/", // a role has to be assign, the name could be everything
             'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // start with
@@ -249,6 +279,13 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
         ];    
 
+    /**
+     * GROUP_ASSIGNMENT_LDAP_MANDANTORY constant
+     * All roles that are not found in active directory as group will be removed from the user object.
+     * 
+     * 
+     * The roles assigned to the user object are always the same as the member of attribute of the active directory user.
+     */      
     const GROUP_ASSIGNMENT_LDAP_MANDANTORY = [
             'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/",
             'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // start with
@@ -324,7 +361,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * Example config/params.php
      * return [
      *        ...
-     *        'LDAP-User-Sync-Options' => Edvlerblog\model\User::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK,
+     *        'LDAP-User-Sync-Options' => Edvlerblog\Adldap2\model\UserDbLdap::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK,
      *        ...
      * ];
      * 
@@ -338,7 +375,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * queryied from LDAP and stored in database on login.
      *
      * @param string $username username of the user object
-     * @return Edvlerblog\model\UserDbLdap A User instance if user is valid. Otherwise NULL.
+     * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap A User instance if user is valid. Otherwise NULL.
      */
     public static function findByUsername($username)
     {
@@ -371,7 +408,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     }
     
     /**
-     * Check if a [[Edvlerblog\model\User]] is allowed to login.
+     * Check if a [[Edvlerblog\Adldap2\model\UserDbLdap]] is allowed to login.
      * Two checks are done before a user object is returned.
      * 
      * 1. Check if user is enabled
@@ -381,8 +418,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * 2. Check if the user has a role assigned which is allowed to login
      * See Parameter LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX 
      * 
-     * @param Edvlerblog\model\UserDbLdap $userObjectDb User object to validate.
-     * @return Edvlerblog\model\UserDbLdap A User instance if user is valid. Otherwise NULL.
+     * @param Edvlerblog\Adldap2\model\UserDbLdapDbLdap $userObjectDb User object to validate.
+     * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap A User instance if user is valid. Otherwise NULL.
      */
     public static function checkAllowedToLogin($userObjectDb) {
         if ($userObjectDb == null) {
@@ -519,7 +556,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         
         if(isset($individualGroupAssignmentOptions) != null) {
             $groupOptionsUsed = $userDbLdapObject->individualGroupAssignmentOptions;
-        } else if(isset(\Yii::$app->params["LDAP-Group-Assignment-Options"]) && $individualGroupAssignmentOptions != null ) {
+        } else if(isset(\Yii::$app->params["LDAP-Group-Assignment-Options"]) && $individualGroupAssignmentOptions == null ) {
             $groupOptionsUsed = \Yii::$app->params["LDAP-Group-Assignment-Options"];
         } else {
             $groupOptionsUsed = self::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX;
@@ -536,26 +573,57 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * Create a new object in database.
      * 
      * @param string $username username of the LDAP user.
-     * @return Edvlerblog\model\UserDbLdap object. Null if the username is not found in LDAP.
+     * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap object. Null if the username is not found in LDAP.
      */
-    public static function createNewUser($username) {
+    public static function createNewUser($username,$individualGroupAssignmentOptions = null) {
         $userObjectDb = new UserDbLdap();
+
         //Username has to be set before a LDAP query
         $userObjectDb->username = $username;
+        
+        $userObjectDb->setIndividualGroupAssignmentOptions($individualGroupAssignmentOptions);
         
         //Check if user exists in LDAP.
         if($userObjectDb->queryLdapUserObject() == null) {
             return null;
         }
         
-        $userObjectDb->generateAuthKey();
-        $userObjectDb->updateAccountStatus();
-        $userObjectDb->updateGroupAssignment();
-        $userObjectDb->save();
+        $roles = $userObjectDb->updateGroupAssignment();
+
+        if (count($roles) > 0 || self::getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX",$userObjectDb->individualGroupAssignmentOptions) == null) {
+            $userObjectDb->generateAuthKey();
+            $userObjectDb->updateAccountStatus();
+            $userObjectDb->save();
+        } else {
+            $userObjectDb = null;
+        }
         
         return $userObjectDb;
     }
     
+    /**
+     * Check if a user exists. If the user exists the account status and group assigments are refreshed.
+     * Otherwise a new user is created.
+     * 
+     * @param string $username
+     * @param array $individualGroupAssignmentOptions
+     * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap object. Null if the username is not found in LDAP.
+     */
+    public static function createOrRefreshUser($username,$individualGroupAssignmentOptions = null) {
+        $userObjectDb = static::findOne(['username' => $username]); 
+
+        //Create user if not found in db
+        if ($userObjectDb == null) {        
+            return self::createNewUser($username, $individualGroupAssignmentOptions);
+        }
+        
+        $userObjectDb->setIndividualGroupAssignmentOptions($individualGroupAssignmentOptions);
+        
+        $userObjectDb->updateAccountStatus();
+        $userObjectDb->updateGroupAssignment();
+        
+        return $userObjectDb;
+    }
     
     /**
      * Query LDAP for the current user status and save the information to database.
@@ -604,7 +672,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * Example config/params.php
      * return [
      *        ...
-     *        'LDAP-Group-Assignment-Options' => Edvlerblog\model\User::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
+     *        'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
      *        ...
      * ];
      * 
@@ -618,8 +686,13 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             return null;
         }
         
+        //get attribute memberof
         $ldapGroups = $ldapUser->getAttribute("memberof");
+        if ($ldapGroups == null) {
+            $ldapGroups = [];
+        }
         
+        //convert attribute and get first part of dn
         $ldapGroupsConverted = [];
         foreach ($ldapGroups as $groupDn) {
             $n = Utilities::explodeDn($groupDn)[0];
@@ -634,6 +707,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             foreach ($ldapGroupsConverted as $gn) {
                 if(preg_match(self::getGroupAssigmentOptions("REGEX_GROUP_MATCH_IN_LDAP",$this->individualGroupAssignmentOptions),$gn) == true) {                    
                     if(array_key_exists($gn,$yiiAviliableRoles) && !array_key_exists($gn,$rolesAssignedToUser)) {
+                        $this->save(); //Save to db to get id from database
                         $auth = \Yii::$app->authManager;
                         $role = $auth->getRole($gn);
                         $auth->assign($role, $this->getId());                
@@ -661,8 +735,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
                             $auth = \Yii::$app->authManager;
                             $auth->revoke($role, $this->getId());
                 }
-            }            
-        }        
+            }
+        }
         
         \Yii::endProfile('LDAP updateGroupAssignment function');
         
