@@ -12,7 +12,7 @@ But more details later.
 
 ## Task 1 - Basic installation
 ### 1. Configure yii2-adldap-module as described in the main README.md.  
-This means your LDAP servers, base_dn and so on are set in the web.conf (basic template) / main.conf (advanced template).
+This means your LDAP servers, base_dn and so on are set in the config/web.conf (basic template) OR common/config/main.conf (advanced template).
 
 ### 2. Configure Database.  
 See http://www.yiiframework.com/doc-2.0/guide-start-databases.html#configuring-db-connection
@@ -21,13 +21,10 @@ See http://www.yiiframework.com/doc-2.0/guide-start-databases.html#configuring-d
 http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac
 
   This has to be done: (if you don't know why and what you are doing read the link above!!)  
-  
-  Execute the rbac migrations in a shell or cmd
-```
-yii migrate --migrationPath=@yii/rbac/migrations
-```
 
-  Add the authManager class to your components.
+  Add the authManager class to your config/web.conf (basic template) OR common/config/main.conf (advanced template).
+  Add the authManager class to your config/console.conf (basic template) OR console/config/main.conf (advanced template).
+  
 ```php
   'components' => [
       //...
@@ -36,6 +33,13 @@ yii migrate --migrationPath=@yii/rbac/migrations
         ],
       //...
 ```
+
+  Execute the rbac migrations in a shell or cmd
+```
+yii migrate --migrationPath=@yii/rbac/migrations
+```
+
+
 
 ### 4. Apply UserDbLdap Migrations. Execute the following command on your shell or cmd
 ```
@@ -67,7 +71,8 @@ public function getUser()
 //...
 ```
 
-### 7. Add the LdapController to the controllerMap in the config/console.php (basic template)
+### 7. Add the LdapController to the controllerMap in the config/console.conf (basic template) OR console/config/main.conf (advanced template).
+Maybe the 'controllerMap' section is commented out.
 ```php
 'controllerMap' => [
     //...
@@ -76,7 +81,27 @@ public function getUser()
     ],
     //...
 ],
-```        
+```
+
+### 8. Add the Active Directory configuration from Step 1 to the components in the config/console.conf (basic template) OR console/config/main.conf (advanced template).
+
+**Because the configurations settings from are not used for the console, you have to add your configuration from Step1 also in your console config!!**
+
+
+```php
+'components' => [
+    //...
+    'ad' => [
+        //...
+        // COPY YOUR SETTINGS FROM web.conf to this place
+        //...
+    ],
+    //...
+],
+```
+
+
+### 9. Test cmd
 Open a shell or a cmd and change to the base directory of your yii2 installation (where the composer.json is located).  
 A ldapcmd entry should be visible.
 ```cmd
@@ -105,7 +130,7 @@ The following commands are available:
 ```
 
 
-### 8. Test the Login of your basic app.  
+### 10. Test the Login of your basic app.  
 Now you can go to the login in page of your yii installation (see upper right corner of the website). You can use any Active Directory user which is able to login on the windows login of your PC.  
 If everythings okay you should see the username in upper right corner.
 
