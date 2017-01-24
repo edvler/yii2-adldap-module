@@ -707,7 +707,11 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             foreach ($ldapGroupsConverted as $gn) {
                 if(preg_match(self::getGroupAssigmentOptions("REGEX_GROUP_MATCH_IN_LDAP",$this->individualGroupAssignmentOptions),$gn) == true) {                    
                     if(array_key_exists($gn,$yiiAviliableRoles) && !array_key_exists($gn,$rolesAssignedToUser)) {
-                        $this->save(); //Save to db to get id from database
+                        if ($this->isNewRecord) {
+                            $this->generateAuthKey();
+                            $this->updateAccountStatus();                        
+                            $this->save(); //Save to db to get id from database
+                        }
                         $auth = \Yii::$app->authManager;
                         $role = $auth->getRole($gn);
                         $auth->assign($role, $this->getId());                
