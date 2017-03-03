@@ -81,7 +81,7 @@ Add this code in your components section of the application configuration (eg. c
 
 			/*
 			 * Another Provider
-			 * You don't have to another provider if you don't need it. It's just an example.
+			 * You don't have to define another provider if you don't need it. It's just an example, which can be deleted.
 			 * 
 			 * You can get the provider with:
 			 * or with $provider = \Yii::$app->ad->getProvider('another_provider');
@@ -94,7 +94,7 @@ Add this code in your components section of the application configuration (eg. c
 			    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md                
 			    'config' => [
 				// Your account suffix, for example: matthias.maderer@test.lan
-				'account_suffix'        => 'test.lan',
+				'account_suffix'        => '@test.lan',
 
 				// You can use the host name or the IP address of your controllers.
 				'domain_controllers'    => ['server1.test.lan', 'server2'],
