@@ -29,7 +29,7 @@ echo '</pre>';
 ## Examples
 
 ### Authenticate user  
-https://github.com/Adldap2/Adldap2/blob/v6.1/docs/authenticating.md
+https://github.com/Adldap2/Adldap2/blob/master/docs/authenticating.md
 ```php
 $un = 'testuser';
 $pw = 'VeryStrongPw';
@@ -43,7 +43,7 @@ if(\Yii::$app->ad->getDefaultProvider()->auth()->attempt($un,$pw)) {
 ### Find records
 #### With findBy() function
 Finding a specific record by a specific attribute. We're looking for a record with the 'samaccountname' of 'testuser'. This euqals to the username in Active Directory.  
-https://github.com/Adldap2/Adldap2/blob/v6.1/docs/query-builder.md
+https://github.com/Adldap2/Adldap2/blob/master/docs/query-builder.md
 ```php
 $un = 'testuser';
 $user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
@@ -67,15 +67,15 @@ echo '</pre>';
 
 ### Group Membership  
 See sourcecode function getMememberOf() or inGroup().  
-https://github.com/Adldap2/Adldap2/blob/v6.1/src/Models/Traits/HasMemberOfTrait.php
+https://github.com/Adldap2/Adldap2/blob/master/src/Models/Traits/HasMemberOf.php
 
-#### Check if user is in group with getMemberOf() function.
+#### Check if user is in group with getGroups() function.
 ```php
 $un = 'testuser';
 $user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
 
 $gn = 'the-group-name';
-foreach($user->getMemberOf() as $group)
+foreach($user->getGroups() as $group)
 {
     if($gn == $group->getName()) {
 	echo 'TRUE';
@@ -98,4 +98,4 @@ if ($user->inGroup($gn)) {
 ## More Examples
 yii2-adldap-module is only a wrapper class. The examples above are all taken from the official documentation of the Adldap2 repository.
 
-You can find the documentation here: https://github.com/Adldap2/Adldap2/tree/v6.1/docs
+You can find the documentation here: https://github.com/Adldap2/Adldap2/tree/master/docs
