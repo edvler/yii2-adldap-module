@@ -57,6 +57,10 @@ class Adldap2Wrapper extends Component
      */
     public $providers;  
     
+    /*
+     * The name of the default provider 
+     */
+    public $defaultProvider = "default";
     
     /**
      * init() called by yii.
@@ -69,13 +73,20 @@ class Adldap2Wrapper extends Component
 
         foreach($this->providers as $providerName=>$prodivderSettings) {
             $config = new \Adldap\Connections\Provider($prodivderSettings['config']);
-            $this->adLdapInstance->addProvider($providerName, $config);
+            $this->adLdapInstance->addProvider($config, $providerName);
             
             if($prodivderSettings['autoconnect'] == true) {
                 $this->adLdapInstance->connect($providerName);
             }
         }
-
+        
+        $providers = $this->adLdapInstance->getProviders();
+        
+        if (array_key_exists($this->defaultProvider, $providers)) {
+            $this->adLdapInstance->setDefaultProvider($this->defaultProvider);
+        } else {
+            throw new \yii\base\Exception("The given defaultprovder with the name " . $this->defaultProvider . " could not be found. See https://github.com/edvler/yii2-adldap-module/blob/master/readme.md");
+        }
     }
 
     
