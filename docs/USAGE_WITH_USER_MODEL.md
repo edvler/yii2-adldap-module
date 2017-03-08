@@ -171,7 +171,7 @@ If you leave the default configuration, the following is happening on login (and
 For a working group to role assignment you have to create the roles in yii2! The roles would NOT be automatically created.
 
 ### Example for group configuration
-In Step 7 of Task 1 you are have already done a successfull login hopefully. But the problem is that every user in Active Directory with a valid password and active account now can login in yii2. Thats not a good solution!
+In Step 10 of Task 1 you are have already done a successfull login hopefully. But the problem is that every user in Active Directory with a valid password and active account now can login in yii2. Thats not a good solution!
 
 Before you continue read the the commets in source code starting at line 125. (see file @vendor/edvlerblog/yii2-adldap-module/src/model/UesrDbLdap.php).
 
