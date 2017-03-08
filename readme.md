@@ -9,8 +9,8 @@
 ## Version
 
 Current Version:
-yii2-adldap-module Releases beginning with tag v2.*.* are reserved for Adldap2 v6.*
-The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/v6.1
+yii2-adldap-module Releases beginning with tag v3.*.* are reserved for Adldap2 v7.*
+The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/master
 
 **Keep this in mind if you are browsing the GitHub Repository of Adldap2**
 
@@ -41,21 +41,8 @@ Add this code in your components section of the application configuration (eg. c
 	'ad' => [
 	    'class' => 'Edvlerblog\Adldap2\Adldap2Wrapper',
 
-            /*
-             * Set the default provider to one of the providers defined in the
-             * providers array.
-             * 
-             * If this is commented out, the entry 'default' in the providers array is 
-             * used.
-             * 
-             * See https://github.com/Adldap2/Adldap2/blob/master/docs/connecting.md
-             * Setting a default connection
-             * 
-             */
-            //'defaultProvider' => 'another_provider',
-
 	    /*
-	     * ADLap2 v6.X.X can handle multiple providers to different Active Directory sources.
+	     * ADLap2 v7.X.X can handle multiple providers to different Active Directory sources.
 	     * Each provider has it's own config.
 	     * 
 	     * In the providers section it's possible to define multiple providers as listed as example below.
@@ -74,7 +61,7 @@ Add this code in your components section of the application configuration (eg. c
 			    'autoconnect' => true,
 
 			    // The config has to be defined as described in the Adldap2 documentation.
-			    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md
+			    // https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
 			    'config' => [
 				// Your account suffix, for example: matthias.maderer@example.lan
 				'account_suffix'        => '@example.lan',
@@ -104,7 +91,7 @@ Add this code in your components section of the application configuration (eg. c
 			    'autoconnect' => false,
 
 			    // The config has to be defined as described in the Adldap2 documentation.
-			    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md                
+			    // https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md               
 			    'config' => [
 				// Your account suffix, for example: matthias.maderer@test.lan
 				'account_suffix'        => 'test.lan',
@@ -126,7 +113,7 @@ Add this code in your components section of the application configuration (eg. c
 ```	
 
 See official documentation for all config options.  
-https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md
+https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
 
 ## Usage - Method 1 and/or Method 2
 
