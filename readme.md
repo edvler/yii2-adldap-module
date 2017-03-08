@@ -21,11 +21,11 @@ The preferred way to install this extension is through [Composer](http://getcomp
 
 Either run
 ```
-php composer.phar require edvlerblog/yii2-adldap-module "^2.0.0"
+php composer.phar require edvlerblog/yii2-adldap-module "^3.0.0"
 ```
 or add
 ```
-"edvlerblog/yii2-adldap-module": "^2.0.0"
+"edvlerblog/yii2-adldap-module": "^3.0.0"
 ```
 to the require section of your composer.json
 
