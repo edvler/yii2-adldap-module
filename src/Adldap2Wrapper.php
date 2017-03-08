@@ -91,7 +91,7 @@ class Adldap2Wrapper extends Component
 
     
     /**
-     * Use magic PHP function __call to route function calls to the Adldap class.
+     * Use magic PHP function __call to route ALL function calls to the Adldap class.
      * Look into the Adldap class for possible functions.
      *
      * @param string $methodName Method name from Adldap class
@@ -100,10 +100,6 @@ class Adldap2Wrapper extends Component
      */
     public function __call($methodName, $methodParams)
     {       
-        if (method_exists($this->adLdapInstance, $methodName)) {
-            return call_user_func_array(array($this->adLdapInstance, $methodName), $methodParams);
-        } else {
-            return parent::__call($methodName, $methodParams);
-        }
+        return call_user_func_array([$this->adLdapInstance, $methodName], $methodParams);
     }
 }
