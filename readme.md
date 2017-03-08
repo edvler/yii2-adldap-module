@@ -69,7 +69,7 @@ Add this code in your components section of the application configuration (eg. c
 			 * $provider = \Yii::$app->ad->getDefaultProvider();
 			 * or with $provider = \Yii::$app->ad->getProvider('default');
 			 */
-			'default' => [
+			'default' => [ //Providername default
 			    // Connect this provider on initialisation of the LdapWrapper Class automatically
 			    'autoconnect' => true,
 
@@ -99,7 +99,7 @@ Add this code in your components section of the application configuration (eg. c
 			 * You can get the provider with:
 			 * or with $provider = \Yii::$app->ad->getProvider('another_provider');
 			 */
-			'another_provider' => [
+			'another_provider' => [ //Providername another_provider
 			    // Connect this provider on initialisation of the LdapWrapper Class automatically
 			    'autoconnect' => false,
 
@@ -138,10 +138,20 @@ You only call the the component as usual.
 ```php
 //...
 $un = 'testuser';
-//There are three ways available to call Adldap2 function. If you use more providers (multiple Active Directory connections) you make one as default and you can call this one with Method1 or Method2 and the second one will be called with Method3.
-$user = \Yii::$app->ad->search()->findBy('sAMAccountname', $un); // Method 1: uses the default provider given in the configuration above (array key defaultProvider)
-$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un); // Method 2: uses the default provider given in the configuration above (array key defaultProvider)
-$user = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', $un); // Method 3: get the provider by name (here name default is used)
+
+/*
+There are three ways available to call Adldap2 function. 
+If you use more providers (multiple Active Directory connections)
+you make one as default and you can call this one with Method1 or Method2
+and the second one will be called with Method3.
+*/
+
+// Method 1: uses the default provider given in the configuration above (array key defaultProvider)
+$user = \Yii::$app->ad->search()->findBy('sAMAccountname', $un); 
+// Method 2: uses the default provider given in the configuration above (array key defaultProvider)
+$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
+// Method 3: get the provider by name (here name default is used).
+$user = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', $un);
 print_r($user); //print all informations retrieved from Active Directory
 //...
 ```
