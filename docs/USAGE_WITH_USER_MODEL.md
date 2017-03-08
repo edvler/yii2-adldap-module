@@ -173,7 +173,7 @@ For a working group to role assignment you have to create the roles in yii2! The
 ### Example for group configuration
 In Step 10 of Task 1 you are have already done a successfull login hopefully. But the problem is that every user in Active Directory with a valid password and active account now can login in yii2. Thats not a good solution!
 
-Before you continue read the the commets in source code starting at line 125. (see file @vendor/edvlerblog/yii2-adldap-module/src/model/UesrDbLdap.php).
+Before you continue read the the commets in source code starting at line 148 ([docs/USAGE_WITHOUT_USER_MODEL.md#L148](docs/USAGE_WITHOUT_USER_MODEL.md#L148)).
 
 #### Login only possible when a role is assigned to the user
 Now add the following to your config/params.php
@@ -201,7 +201,7 @@ The answer is simple for two reasons:
 - yii2 has no corresponding role
 
 #### Create example role
-Look into the source code of the function actionCreateExampleRole (see file @vendor/edvlerblog/yii2-adldap-module/src/commands/LdapController.php).
+Look into the source code of the function actionCreateExampleRole([src/commands/LdapController.php](src/commands/LdapController.php)).
 
 As you can see two permissions are created **(permissionDisplayDetailedAbout, permissionToUseContanctPage)** and assigend to the role 
 **yii2_example_group**.
