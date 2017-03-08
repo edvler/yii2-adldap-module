@@ -1,5 +1,10 @@
 # Usage method 1: Simple usage without a user model
 
+## This is only a Quick-Start-Guide!
+yii2-adldap-module is only a wrapper class. The examples below are all taken from the official documentation of the Adldap2 repository.
+
+You can find the documentation here: https://github.com/Adldap2/Adldap2/tree/master/docs
+
 ## Syntax basics
 
 ### Different ways to call Adldap2 functions
@@ -97,7 +102,7 @@ echo '</pre>';
 ```
 
 ### Group Membership  
-See sourcecode function getMememberOf() or inGroup().  
+See sourcecode function getGroups() or inGroup().  
 https://github.com/Adldap2/Adldap2/blob/master/src/Models/Traits/HasMemberOf.php
 
 #### Check if user is in group with getGroups() function.
