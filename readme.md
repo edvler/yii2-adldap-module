@@ -9,8 +9,8 @@
 ## Version
 
 Current Version:
-yii2-adldap-module Releases beginning with tag v2.*.* are reserved for Adldap2 v6.*
-The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/v6.1
+yii2-adldap-module Releases beginning with tag v3.*.* are reserved for Adldap2 v7.*
+The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/master
 
 **Keep this in mind if you are browsing the GitHub Repository of Adldap2**
 
@@ -21,11 +21,11 @@ The preferred way to install this extension is through [Composer](http://getcomp
 
 Either run
 ```
-php composer.phar require edvlerblog/yii2-adldap-module "^2.0.0"
+php composer.phar require edvlerblog/yii2-adldap-module "^3.0.0"
 ```
 or add
 ```
-"edvlerblog/yii2-adldap-module": "^2.0.0"
+"edvlerblog/yii2-adldap-module": "^3.0.0"
 ```
 to the require section of your composer.json
 
@@ -42,7 +42,20 @@ Add this code in your components section of the application configuration (eg. c
 	    'class' => 'Edvlerblog\Adldap2\Adldap2Wrapper',
 
 	    /*
-	     * ADLap2 v6.X.X can handle multiple providers to different Active Directory sources.
+	     * Set the default provider to one of the providers defined in the
+	     * providers array.
+	     * 
+	     * If this is commented out, the entry 'default' in the providers array is 
+	     * used.
+	     * 
+	     * See https://github.com/Adldap2/Adldap2/blob/master/docs/connecting.md
+	     * Setting a default connection
+	     * 
+	     */
+	     //'defaultProvider' => 'another_provider',
+
+	    /*
+	     * Adlapd2 v7.X.X can handle multiple providers to different Active Directory sources.
 	     * Each provider has it's own config.
 	     * 
 	     * In the providers section it's possible to define multiple providers as listed as example below.
@@ -56,12 +69,12 @@ Add this code in your components section of the application configuration (eg. c
 			 * $provider = \Yii::$app->ad->getDefaultProvider();
 			 * or with $provider = \Yii::$app->ad->getProvider('default');
 			 */
-			'default' => [
+			'default' => [ //Providername default
 			    // Connect this provider on initialisation of the LdapWrapper Class automatically
 			    'autoconnect' => true,
 
 			    // The config has to be defined as described in the Adldap2 documentation.
-			    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md
+			    // https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
 			    'config' => [
 				// Your account suffix, for example: matthias.maderer@example.lan
 				'account_suffix'        => '@example.lan',
@@ -86,12 +99,12 @@ Add this code in your components section of the application configuration (eg. c
 			 * You can get the provider with:
 			 * or with $provider = \Yii::$app->ad->getProvider('another_provider');
 			 */
-			'another_provider' => [
+			'another_provider' => [ //Providername another_provider
 			    // Connect this provider on initialisation of the LdapWrapper Class automatically
 			    'autoconnect' => false,
 
 			    // The config has to be defined as described in the Adldap2 documentation.
-			    // e.g. https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md                
+			    // https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md               
 			    'config' => [
 				// Your account suffix, for example: matthias.maderer@test.lan
 				'account_suffix'        => 'test.lan',
@@ -113,7 +126,7 @@ Add this code in your components section of the application configuration (eg. c
 ```	
 
 See official documentation for all config options.  
-https://github.com/Adldap2/Adldap2/blob/v6.1/docs/configuration.md
+https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
 
 ## Usage - Method 1 and/or Method 2
 
@@ -125,7 +138,20 @@ You only call the the component as usual.
 ```php
 //...
 $un = 'testuser';
+
+/*
+There are three ways available to call Adldap2 function. 
+If you use more providers (multiple Active Directory connections)
+you make one as default and you can call this one with Method1 or Method2
+and the second one will be called with Method3.
+*/
+
+// Method 1: uses the default provider given in the configuration above (array key defaultProvider)
+$user = \Yii::$app->ad->search()->findBy('sAMAccountname', $un); 
+// Method 2: uses the default provider given in the configuration above (array key defaultProvider)
 $user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
+// Method 3: get the provider by name (here name default is used).
+$user = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', $un);
 print_r($user); //print all informations retrieved from Active Directory
 //...
 ```

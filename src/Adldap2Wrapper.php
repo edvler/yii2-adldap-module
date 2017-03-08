@@ -57,6 +57,10 @@ class Adldap2Wrapper extends Component
      */
     public $providers;  
     
+    /*
+     * The name of the default provider 
+     */
+    public $defaultProvider = "default";
     
     /**
      * init() called by yii.
@@ -69,18 +73,25 @@ class Adldap2Wrapper extends Component
 
         foreach($this->providers as $providerName=>$prodivderSettings) {
             $config = new \Adldap\Connections\Provider($prodivderSettings['config']);
-            $this->adLdapInstance->addProvider($providerName, $config);
+            $this->adLdapInstance->addProvider($config, $providerName);
             
             if($prodivderSettings['autoconnect'] == true) {
                 $this->adLdapInstance->connect($providerName);
             }
         }
-
+        
+        $providers = $this->adLdapInstance->getProviders();
+        
+        if (array_key_exists($this->defaultProvider, $providers)) {
+            $this->adLdapInstance->setDefaultProvider($this->defaultProvider);
+        } else {
+            throw new \yii\base\Exception("The given defaultprovder with the name " . $this->defaultProvider . " could not be found. See https://github.com/edvler/yii2-adldap-module/blob/master/readme.md");
+        }
     }
 
     
     /**
-     * Use magic PHP function __call to route function calls to the Adldap class.
+     * Use magic PHP function __call to route ALL function calls to the Adldap class.
      * Look into the Adldap class for possible functions.
      *
      * @param string $methodName Method name from Adldap class
@@ -89,10 +100,6 @@ class Adldap2Wrapper extends Component
      */
     public function __call($methodName, $methodParams)
     {       
-        if (method_exists($this->adLdapInstance, $methodName)) {
-            return call_user_func_array(array($this->adLdapInstance, $methodName), $methodParams);
-        } else {
-            return parent::__call($methodName, $methodParams);
-        }
+        return call_user_func_array([$this->adLdapInstance, $methodName], $methodParams);
     }
 }

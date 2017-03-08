@@ -486,7 +486,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     public function validatePassword($password)
     {
         \Yii::beginProfile('LDAP validatePassword function');
-        $passwordValid = \Yii::$app->ad->getDefaultProvider()->auth()->attempt($this->username,$password);
+        $passwordValid = $this->getAdldap2Provider()->auth()->attempt($this->username,$password);
         \Yii::endProfile('LDAP validatePassword function');
         return $passwordValid;
     }
@@ -763,7 +763,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
                 throw new \yii\base\Exception("Please set username attribute before calling queryLdapUserObject() function.");
             }
 
-            $userObjectsFound = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $this->username);
+            $userObjectsFound = $this->getAdldap2Provider()->search()->findBy('sAMAccountname', $this->username);
 			
             if(count($userObjectsFound) != 1) {
                 $this->ldapUserObject = null;
@@ -775,5 +775,21 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         \Yii::endProfile('LDAP queryLdapUserObject function');
         
         return $this->ldapUserObject;
+    }
+    
+    /**
+     * Get the Adldap2 provider name
+     * 
+     * 
+     */
+    
+    private function getAdldap2Provider() {
+        if(isset(\Yii::$app->params["yii2-adldap-providername"])) {
+            $provider =\Yii::$app->ad->getProvider(\Yii::$app->params["yii2-adldap-providername"]);
+        } else {
+            $provider =\Yii::$app->ad->getDefaultProvider();
+        }
+
+        return $provider;
     }
 }
