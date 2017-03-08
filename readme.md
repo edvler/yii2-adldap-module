@@ -41,18 +41,18 @@ Add this code in your components section of the application configuration (eg. c
 	'ad' => [
 	    'class' => 'Edvlerblog\Adldap2\Adldap2Wrapper',
 
--            /*
--             * Set the default provider to one of the providers defined in the
--             * providers array.
--             * 
--             * If this is commented out, the entry 'default' in the providers array is 
--             * used.
--             * 
--             * See https://github.com/Adldap2/Adldap2/blob/master/docs/connecting.md
--             * Setting a default connection
--             * 
--             */
--            //'defaultProvider' => 'another_provider',
+            /*
+             * Set the default provider to one of the providers defined in the
+             * providers array.
+             * 
+             * If this is commented out, the entry 'default' in the providers array is 
+             * used.
+             * 
+             * See https://github.com/Adldap2/Adldap2/blob/master/docs/connecting.md
+             * Setting a default connection
+             * 
+             */
+            //'defaultProvider' => 'another_provider',
 
 	    /*
 	     * Adlapd2 v7.X.X can handle multiple providers to different Active Directory sources.
