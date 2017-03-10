@@ -51,17 +51,17 @@ class Adldap2Wrapper extends Component
      * The Adldap instance.
      */
     public $adLdapInstance;
-    
+
     /**
      * Array containig providers config
      */
-    public $providers;  
-    
+    public $providers;
+
     /*
-     * The name of the default provider 
+     * The name of the default provider
      */
     public $defaultProvider = "default";
-    
+
     /**
      * init() called by yii.
      */
@@ -74,14 +74,18 @@ class Adldap2Wrapper extends Component
         foreach($this->providers as $providerName=>$prodivderSettings) {
             $config = new \Adldap\Connections\Provider($prodivderSettings['config']);
             $this->adLdapInstance->addProvider($config, $providerName);
-            
+
+            if (array_key_exists('schema',$prodivderSettings) && is_object($prodivderSettings['schema'])) {
+                $this->adLdapInstance->getProvider($providerName)->setSchema($prodivderSettings['schema']);
+            }
+
             if($prodivderSettings['autoconnect'] == true) {
                 $this->adLdapInstance->connect($providerName);
             }
         }
-        
+
         $providers = $this->adLdapInstance->getProviders();
-        
+
         if (array_key_exists($this->defaultProvider, $providers)) {
             $this->adLdapInstance->setDefaultProvider($this->defaultProvider);
         } else {
@@ -89,7 +93,7 @@ class Adldap2Wrapper extends Component
         }
     }
 
-    
+
     /**
      * Use magic PHP function __call to route ALL function calls to the Adldap class.
      * Look into the Adldap class for possible functions.
@@ -99,7 +103,7 @@ class Adldap2Wrapper extends Component
      * @return mixed
      */
     public function __call($methodName, $methodParams)
-    {       
+    {
         return call_user_func_array([$this->adLdapInstance, $methodName], $methodParams);
     }
 }
