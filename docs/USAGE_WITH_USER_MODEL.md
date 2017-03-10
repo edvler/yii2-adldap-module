@@ -85,7 +85,7 @@ Maybe the 'controllerMap' section is commented out.
 
 ### 8. Add the Active Directory configuration from Step 1 to the components in the config/console.conf (basic template) OR console/config/main.conf (advanced template).
 
-**Because the configurations settings from are not used for the console, you have to add your configuration from Step1 also in your console config!!**
+**Because the configurations settings from the web.conf or the main.conf are not used for the console, you have to add your configuration from Step1 also in your console config!!**
 
 
 ```php
