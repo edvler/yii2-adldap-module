@@ -4,7 +4,7 @@ The User model adds the possibility to authenticate users against Active Directo
 It's also possible to match assigned groups to a user in Active Directory to a role in yii2.
 
 You can manage your users **completly** over Active Directory without doing anything in yii2!!
-The only thing you have to is assign groups in Active Directory starting with yii2 to the user.
+The only thing you have to do is assign groups in Active Directory where the group name starts with **yii2** (can be configured) to the user.
 The rest would be **magic**!
 
 But more details later.
