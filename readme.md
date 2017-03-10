@@ -36,7 +36,7 @@ Add this code in your components section of the application configuration (eg. c
 ```php
 'components' => [
 	//.....
-	//.....
+	// other components ...
 	//.....
 	'ad' => [
 	    'class' => 'Edvlerblog\Adldap2\Adldap2Wrapper',
@@ -52,7 +52,7 @@ Add this code in your components section of the application configuration (eg. c
 	     * Setting a default connection
 	     *
 	     */
-	     //'defaultProvider' => 'another_provider',
+	     // 'defaultProvider' => 'another_provider',
 
 	    /*
 	     * Adlapd2 v7.X.X can handle multiple providers to different Active Directory sources.
@@ -107,6 +107,11 @@ Add this code in your components section of the application configuration (eg. c
 			'another_provider' => [ //Providername another_provider
 			    // Connect this provider on initialisation of the LdapWrapper Class automatically
 			    'autoconnect' => false,
+
+			    // The provider's schema. Default is \Adldap\Schemas\ActiveDirectory set in https://github.com/Adldap2/Adldap2/blob/master/src/Connections/Provider.php#L112
+			    // You can make your own https://github.com/Adldap2/Adldap2/blob/master/docs/schema.md or use one from https://github.com/Adldap2/Adldap2/tree/master/src/Schemas
+			    // Example to set it to OpenLDAP:
+			    // 'schema' => new \Adldap\Schemas\OpenLDAP(),
 
 			    // The config has to be defined as described in the Adldap2 documentation.
 			    // https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md               
