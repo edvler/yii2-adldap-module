@@ -44,27 +44,27 @@ Add this code in your components section of the application configuration (eg. c
 	    /*
 	     * Set the default provider to one of the providers defined in the
 	     * providers array.
-	     * 
-	     * If this is commented out, the entry 'default' in the providers array is 
+	     *
+	     * If this is commented out, the entry 'default' in the providers array is
 	     * used.
-	     * 
+	     *
 	     * See https://github.com/Adldap2/Adldap2/blob/master/docs/connecting.md
 	     * Setting a default connection
-	     * 
+	     *
 	     */
 	     //'defaultProvider' => 'another_provider',
 
 	    /*
 	     * Adlapd2 v7.X.X can handle multiple providers to different Active Directory sources.
 	     * Each provider has it's own config.
-	     * 
+	     *
 	     * In the providers section it's possible to define multiple providers as listed as example below.
 	     * But it's enough to only define the "default" provider!
 	     */
 	    'providers' => [
 			/*
 			 * Always add a default provider!
-			 * 
+			 *
 			 * You can get the provider with:
 			 * $provider = \Yii::$app->ad->getDefaultProvider();
 			 * or with $provider = \Yii::$app->ad->getProvider('default');
@@ -72,6 +72,11 @@ Add this code in your components section of the application configuration (eg. c
 			'default' => [ //Providername default
 			    // Connect this provider on initialisation of the LdapWrapper Class automatically
 			    'autoconnect' => true,
+
+			    // The provider's schema. Default is \Adldap\Schemas\ActiveDirectory set in https://github.com/Adldap2/Adldap2/blob/master/src/Connections/Provider.php#L112
+			    // You can make your own https://github.com/Adldap2/Adldap2/blob/master/docs/schema.md or use one from https://github.com/Adldap2/Adldap2/tree/master/src/Schemas
+			    // Example to set it to OpenLDAP:
+			    // 'schema' => new \Adldap\Schemas\OpenLDAP(),
 
 			    // The config has to be defined as described in the Adldap2 documentation.
 			    // https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
@@ -95,7 +100,7 @@ Add this code in your components section of the application configuration (eg. c
 			/*
 			 * Another Provider
 			 * You don't have to another provider if you don't need it. It's just an example.
-			 * 
+			 *
 			 * You can get the provider with:
 			 * or with $provider = \Yii::$app->ad->getProvider('another_provider');
 			 */
@@ -123,7 +128,7 @@ Add this code in your components section of the application configuration (eg. c
 			], // close provider
 	    ], // close providers array
 	], //close ad
-```	
+```
 
 See official documentation for all config options.  
 https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
@@ -140,14 +145,14 @@ You only call the the component as usual.
 $un = 'testuser';
 
 /*
-There are three ways available to call Adldap2 function. 
+There are three ways available to call Adldap2 function.
 If you use more providers (multiple Active Directory connections)
 you make one as default and you can call this one with Method1 or Method2
 and the second one will be called with Method3.
 */
 
 // Method 1: uses the default provider given in the configuration above (array key defaultProvider)
-$user = \Yii::$app->ad->search()->findBy('sAMAccountname', $un); 
+$user = \Yii::$app->ad->search()->findBy('sAMAccountname', $un);
 // Method 2: uses the default provider given in the configuration above (array key defaultProvider)
 $user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
 // Method 3: get the provider by name (here name default is used).
