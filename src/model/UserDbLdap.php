@@ -779,8 +779,6 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     
     /**
      * Get the Adldap2 provider name
-     * 
-     * 
      */
     
     private function getAdldap2Provider() {
@@ -792,4 +790,17 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
 
         return $provider;
     }
+	
+    /**
+     * Get the password expirytime
+     * See: https://msdn.microsoft.com/en-us/library/cc223410.aspx
+     */
+    public function getPasswordExpiryDate() {
+        $provider = $this->getAdldap2Provider();
+        $search = $provider->search();  //start a search
+        $search = $search->select(['msDS-UserPasswordExpiryTimeComputed']); //Only query this attributes
+        $search = $search->where('samaccountname', '=', $this->username);
+        $result = $search->get();
+        return $result[0]->getFirstAttribute("msds-userpasswordexpirytimecomputed");        
+    }	
 }
