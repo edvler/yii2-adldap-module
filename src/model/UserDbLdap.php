@@ -796,6 +796,10 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * See: https://msdn.microsoft.com/en-us/library/cc223410.aspx
      */
     public function getPasswordExpiryDate() {
+        if ($this->username == null) {
+	   throw new \yii\base\Exception("Please set username attribute before calling getPasswordExpiryDate() function.");
+        }	    
+	    
         $provider = $this->getAdldap2Provider();
         $search = $provider->search();  //start a search
         $search = $search->select(['msDS-UserPasswordExpiryTimeComputed']); //Only query this attributes
