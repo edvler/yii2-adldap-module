@@ -2,10 +2,10 @@
     "name": "edvlerblog/yii2-adldap-module",
     "description": "yii2 Active Directory implementation (wrapper for Adldap2)",
     "type": "yii2-extension",
-    "keywords": ["microsoft","active directory","ldap","yii2","adldap","ad"],
+    "keywords": ["microsoft","ldap","adldap","ad","active directory","yii2","yii2-extension","yii2-rbac","yii2-role-system","yii2-rbac-module"],
     "homepage": "https://github.com/edvler/yii2-adldap-module",
-    "time": "2016-12-16",
-    "license": "GPL-3.0+",
+    "time": "2017-04-19",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Matthias Maderer",
@@ -14,18 +14,20 @@
             "role": "Developer"
         }
     ],
+    "support": {
+        "email": "edvler@edvler-blog.de",
+        "issues": "https://github.com/edvler/yii2-adldap-module/issues",
+        "wiki": "https://github.com/edvler/yii2-adldap-module/wiki",
+        "source": "https://github.com/edvler/yii2-adldap-module",
+        "docs": "https://github.com/edvler/yii2-adldap-module"
+    },    
     "require": {
         "adldap2/adldap2": "^7.0.0",
-	"yiisoft/yii2": "^2.0.0"
+        "yiisoft/yii2": "^2.0.0"
     },
     "autoload": {
         "psr-4" : {
             "Edvlerblog\\Adldap2\\" : "src/"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.x.x-dev"
         }
     }
 }

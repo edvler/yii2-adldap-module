@@ -1,4 +1,18 @@
 <?php
+/**
+ * See LICENSE.md distributed with the software package for license informations.
+ * 
+ * THANKS TO:
+ * - Fedek. He wrote a similar plugin for yii 1.
+ * - stevebauman. He is maintaining the Adldap2 repository on github.com
+ *
+ * @category yii2-extension
+ * @package yii2-adldap-module
+ * @author Matthias Maderer
+ * @copyright (c) 2017 Matthias Maderer
+ * @link https://github.com/edvler/yii2-adldap-module
+ */
+
 namespace Edvlerblog\Adldap2\model;
 
 use Yii;
