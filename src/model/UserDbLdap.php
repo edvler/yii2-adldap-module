@@ -398,7 +398,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         //Create user if not found in db?
         if ($userObjectDb == null) {
             //Just create to get synchronisation options
-            $userObjectDb = new UserDbLdap();
+            $userObjectDb = new static;
             
             if(self::getSyncOptions("ON_LOGIN_CREATE_USER", $userObjectDb->individualSyncOptions) == true) {
                 $userObjectDb = static::createNewUser($username);
@@ -590,7 +590,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap object. Null if the username is not found in LDAP.
      */
     public static function createNewUser($username,$individualGroupAssignmentOptions = null) {
-        $userObjectDb = new UserDbLdap();
+        $userObjectDb = new static;
 
         //Username has to be set before a LDAP query
         $userObjectDb->username = $username;
