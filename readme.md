@@ -174,6 +174,15 @@ print_r($user); //print all informations retrieved from Active Directory
 ### Usage method 2: Deep integration into the yii2 framework with a user model
 The second method gives you the ability to authenticate users against Active Directory with a special user model. It intgerates very well into the RBAC security concept of yii2 (http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac).
 
+You can use all features of the yii2 user integration.
+
+Some Examples:
+```php
+$hasPermission = \Yii::$app->user->can('permissionDisplayDetailedAbout');
+$rolesOfUser = \Yii::$app->authManager->getRolesByUser($this->getId());
+...
+```
+
 If you use the [Edvlerblog\Adldap2\model\UserDbLdap.php](src/model/UserDbLdap.php) class you can do things like login with a user into yii2 **without createing them** in yii2. Tasks like creating a user, assigning roles and check password against Active Directory all automatically done from [Edvlerblog\Adldap2\model\UserDbLdap.php](src/model/UserDbLdap.php) class.  
 
 For example imagine the following:  
