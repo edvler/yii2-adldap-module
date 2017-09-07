@@ -41,12 +41,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * of the UserDbLdap.
      * 
      * The main purpose of this constant is to define when a LDAP query is done and when not.
-     * For example you can decide, if a user is not found database, if a LDAP query should search
+     * For example you can decide, if a user is not found in the yii2 database, if a LDAP query should search
      * for the user and create it, or if the login simply fails.
      * Another example is, if a LDAP query should be issued on login to refresh the group assignments.
      * 
      * As you can imagine updating group assignments and updating the account status could be a 
-     * time consuming task. This is why you can define here what should be done on every site request
+     * time consuming task. This is why you can define what should be done on every site request
      * and on login.
      * 
      * If you run a backend task, which querys the informations 
@@ -317,7 +317,9 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             'SEARCH_NESTED_GROUPS' => false  
         ];
     
-    //Constants for a enabeld/disabled which are saved to database.
+    /**
+     * Constants for a enabeld/disabled which are saved to database.
+     */
     const STATUS_DISABLED = 0;
     const STATUS_ENABLED = 1;    
     
@@ -389,7 +391,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * ];
      * 
      * If the user does not exists in database and the option [[ON_LOGIN_CREATE_USER]] is true
-     * a LDAP query would ne done to find the user in LDAP and sync it to database.
+     * a LDAP query would be done to find the user in LDAP and sync it to database.
      * 
      * If the [[ON_LOGIN_REFRESH_GROUP_ASSIGNMENTS]] option is true, the group assigment is
      * queryied from LDAP and stored in database on login.
@@ -641,7 +643,6 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         $userObjectDb->setIndividualGroupAssignmentOptions($individualGroupAssignmentOptions);
-        
         $userObjectDb->updateAccountStatus();
         $userObjectDb->updateGroupAssignment();
         
