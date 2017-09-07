@@ -60,8 +60,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *   
      *   return [
      *       //...
-     *       'LDAP-User-Sync-Options' => Edvlerblog\Adldap2\model\UserDbLdapDbLdap::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK,
-     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdapDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
+     *       'LDAP-User-Sync-Options' => Edvlerblog\Adldap2\model\UserDbLdap::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK,
+     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
      *       //...
      *   ];
      * 
@@ -75,7 +75,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *                                       'ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS' => true,
      *                                       'ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS' => false,
      *                                   ],
-     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdapDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
+     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
      *       //...
      *   ]; 
      * 
@@ -176,7 +176,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *   
      *   return [
      *       //...
-     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdapDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE,
+     *       'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE,
      *       //...
      *   ];
      * 
@@ -315,11 +315,47 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             'SEARCH_NESTED_GROUPS' => false  
         ];
     
+     
+    /**
+     * Constants starting with EXTENSION_OPTIONS_****
+     * 
+     * This array defines the default options for the extension.
+     * 
+     * You can configure your own settings in the config/params.php
+     * 
+     *   With predefined constant
+     *   
+     *   return [
+     *       //...
+     *       'yii2-adldap-extension-Options' => Edvlerblog\Adldap2\model\UserDbLdap::EXTENSION_OPTIONS_DEBUG,
+     *       //...
+     *   ];
+     * 
+     *   With complete own settings
+     * 
+     *   return [
+     *       //...
+     *       'yii2-adldap-extension-Options' => [
+     *                                           'ENABLE_YII2_PROFILING' => false
+     *                                       ],
+     *       //...
+     *   ]; 
+     */
+    const EXTENSION_OPTIONS_DEFAULT = [
+            'ENABLE_YII2_PROFILING' => false //Disable profiling (yii2-debugger tab Profiling or Timeline) to analyse time needed for each function in the yii2-adldap-module
+        ];    
+
+    const EXTENSION_OPTIONS_DEBUG = [
+            'ENABLE_YII2_PROFILING' => true //Enable profiling (yii2-debugger tab Profiling or Timeline) to analyse time needed for each function in the yii2-adldap-module
+        ];        
+    
     /**
      * Constants for a enabeld/disabled which are saved to database.
      */
     const STATUS_DISABLED = 0;
     const STATUS_ENABLED = 1;
+    
+    const YII2_PROFILE_NAME = 'Edvlerblog\Adldap2\model\UserDbLdap::';
     
     private $ldapUserObject = null;
     private $individualSyncOptions = null;
@@ -367,10 +403,18 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('findIdentity', static::YII2_PROFILE_NAME . 'findIdentity');
+        }
+        
         //Database check. If no dataset is found then the only possible return value is null.
         $userObjectDb = static::findOne(['id' => $id]);
+        $allowedToLogin = static::checkAllowedToLogin($userObjectDb);
         
-        return static::checkAllowedToLogin($userObjectDb);
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('findIdentity', static::YII2_PROFILE_NAME . 'findIdentity');
+        }
+        return $allowedToLogin;
     }
 
     /**
@@ -398,9 +442,13 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * queryied from LDAP and stored in database on login.
      *
      * @param string $username username of the user object
-     * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap A User instance if user is valid. Otherwise NULL.
+     * @return Edvlerblog\Adldap2\model\UserDbLdap A User instance if user is valid. Otherwise NULL.
      */
     public static function findByUsername($username) {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('findByUsername', static::YII2_PROFILE_NAME . 'findByUsername');
+        }        
+        
         $userObjectDb = static::findOne(['username' => $username]); 
 
         //Create user if not found in db
@@ -430,7 +478,10 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             }
         }
         
-        $allowedToLogin = static::checkAllowedToLogin($userObjectDb);        
+        $allowedToLogin = static::checkAllowedToLogin($userObjectDb);
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('findByUsername', static::YII2_PROFILE_NAME . 'findByUsername');
+        }        
         return $allowedToLogin;
     }
     
@@ -445,42 +496,49 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * 2. Check if the user has a role assigned which is allowed to login
      * See Parameter LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX 
      * 
-     * @param Edvlerblog\Adldap2\model\UserDbLdapDbLdap $userObjectDb User object to validate.
-     * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap A User instance if user is valid. Otherwise NULL.
+     * @param Edvlerblog\Adldap2\model\UserDbLdap $userObjectDb User object to validate.
+     * @return Edvlerblog\Adldap2\model\UserDbLdap A User instance if user is valid. Otherwise NULL.
      */
     public static function checkAllowedToLogin($userObjectDb) {
-        if ($userObjectDb == null) {
-            return null;
-        }
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('checkAllowedToLogin', static::YII2_PROFILE_NAME . 'checkAllowedToLogin');
+        }        
         
-        //Refresh account status on every request?
-        if ($userObjectDb->username != null && 
-            static::getSyncOptions('ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == true)
-        {
-            $userObjectDb->updateAccountStatus();
-        }
+        $userInstanceAfterLogin = null;
         
-        //Login only possible if a role is assigned which matches the LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX regex
-        if ($userObjectDb->status == static::STATUS_ENABLED &&
-            static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) != null)
-        {
-            $rolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($userObjectDb->getId());
-            
-            foreach ($rolesAssignedToUser as $role) {
-                if(preg_match(static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions),$role->name) == true) {
-                    return $userObjectDb;
+        if ($userObjectDb != null) {        
+            //Refresh account status on every request?
+            if ($userObjectDb->username != null && 
+                static::getSyncOptions('ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == true)
+            {
+                $userObjectDb->updateAccountStatus();
+            }
+
+            //Login only possible if a role is assigned which matches the LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX regex
+            if ($userObjectDb->status == static::STATUS_ENABLED &&
+                static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) != null)
+            {
+                $rolesAssignedToUser = Yii::$app->authManager->getRolesByUser($userObjectDb->getId());
+
+                foreach ($rolesAssignedToUser as $role) {
+                    if(preg_match(static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions),$role->name) == true) {
+                        $userInstanceAfterLogin = $userObjectDb;
+                    }
                 }
+            }
+
+            //Login possible if no role is assigned
+            if ($userObjectDb->status == static::STATUS_ENABLED &&
+                static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) == null)
+            {
+                $userInstanceAfterLogin = $userObjectDb;
             }
         }
         
-        //Login possible if no role is assigned
-        if ($userObjectDb->status == static::STATUS_ENABLED &&
-            static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) == null)
-        {
-            return $userObjectDb;
-        }
-        
-        return null;
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('checkAllowedToLogin', static::YII2_PROFILE_NAME . 'checkAllowedToLogin');
+        }        
+        return $userInstanceAfterLogin;
     }
     
     /**
@@ -518,9 +576,16 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
-        \Yii::beginProfile('LDAP validatePassword function');
+        //is yii2 profiling enabled?
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('LDAP validatePassword function', static::YII2_PROFILE_NAME . 'validatePassword');
+        }
+            
         $passwordValid = $this->getAdldap2Provider()->auth()->attempt($this->username,$password);
-        \Yii::endProfile('LDAP validatePassword function');
+        
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('LDAP validatePassword function', static::YII2_PROFILE_NAME . 'validatePassword');
+        }
         return $passwordValid;
     }
     
@@ -531,7 +596,295 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     {
         $this->auth_key = Yii::$app->security->generateRandomString();
     }  
+     
+    /**
+     * Create a new object in database.
+     * 
+     * @param string $username username of the LDAP user.
+     * @return Edvlerblog\Adldap2\model\UserDbLdap object. Null if the username is not found in LDAP.
+     */
+    public static function createNewUser($username,$individualGroupAssignmentOptions = null) {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('createNewUser', static::YII2_PROFILE_NAME . 'createNewUser');
+        }
+        
+        $userObjectDb = new static();
+
+        //Username has to be set before a LDAP query
+        $userObjectDb->username = $username;
+        $userObjectDb->setIndividualGroupAssignmentOptions($individualGroupAssignmentOptions);
+        
+        //Check if user exists in LDAP.
+        if($userObjectDb->queryLdapUserObject() == null) {
+            $userObjectDb = null;
+        } else {
+            $roles = $userObjectDb->updateGroupAssignment();
+
+            if (count($roles) > 0 || static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) == null) {
+                $userObjectDb->generateAuthKey();
+                $userObjectDb->updateAccountStatus();
+                $userObjectDb->save();
+            } else {
+                $userObjectDb = null;
+            }
+        }
+        
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('createNewUser', static::YII2_PROFILE_NAME . 'createNewUser');
+        }        
+        return $userObjectDb;
+    }
     
+    /**
+     * Check if a user exists. If the user exists the account status and group assigments are refreshed.
+     * Otherwise a new user is created.
+     * 
+     * @param string $username
+     * @param array $individualGroupAssignmentOptions
+     * @return Edvlerblog\Adldap2\model\UserDbLdap object. Null if the username is not found in LDAP.
+     */
+    public static function createOrRefreshUser($username,$individualGroupAssignmentOptions = null) {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('createOrRefreshUser', static::YII2_PROFILE_NAME . 'createOrRefreshUser');
+        }
+        
+        $userObjectDb = static::findOne(['username' => $username]); 
+
+        //Create user if not found in db
+        if ($userObjectDb == null) {        
+            $userObjectDb = static::createNewUser($username, $individualGroupAssignmentOptions);
+        } else {
+            $userObjectDb->setIndividualGroupAssignmentOptions($individualGroupAssignmentOptions);
+            $userObjectDb->updateAccountStatus();
+            $userObjectDb->updateGroupAssignment();
+        }
+        
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('createOrRefreshUser', static::YII2_PROFILE_NAME . 'createOrRefreshUser');
+        }        
+        return $userObjectDb;
+    }
+    
+    /**
+     * Query LDAP for the current user status and save the information to database.
+     * 
+     * @return int Status after update
+     */
+    public function updateAccountStatus() {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('LDAP updateAccountStatus function', static::YII2_PROFILE_NAME . 'updateAccountStatus');
+        }
+        
+        $ldapUser = $this->queryLdapUserObject();
+        
+        if ($ldapUser == null) {
+            //If no user is found in LDAP, disable in database.
+            $this->status = static::STATUS_DISABLED;
+        } else {
+            //Query account status from active directory
+            $ldapAccountState = $ldapUser->getUserAccountControl();
+
+            $disabledUser = ($ldapAccountState & AccountControl::ACCOUNTDISABLE) === AccountControl::ACCOUNTDISABLE;
+            $lockedUser = ($ldapAccountState & AccountControl::LOCKOUT) === AccountControl::LOCKOUT;
+            $pwExpired = ($ldapAccountState & AccountControl::PASSWORD_EXPIRED) === AccountControl::PASSWORD_EXPIRED;
+
+            if($disabledUser == true || $lockedUser == true || $pwExpired == true) {
+                $this->status = static::STATUS_DISABLED;
+            } else {
+                $this->status = static::STATUS_ENABLED;
+            }
+        }
+        
+        $this->save();
+        
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('LDAP updateAccountStatus function', static::YII2_PROFILE_NAME . 'updateAccountStatus');
+        }
+        
+        return $this->status;
+    }
+    
+    
+    /**
+     * Update the group assignment of the user object
+     * The Yii::$app->params['LDAP-Group-Assignment-Options'] has several options how to update the group assignment.
+     * 
+     * Basicly a query to LDAP is done which returns the groups assigned to the user in the LDAP directory.
+     * Depending on the settings in the params groups are added or removed from the user object.
+     * 
+     * For a description of the options see the top of this class, where templates (e.g. GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX) are defined.
+     * This Templates can be used directly in params or you can define each param by yourself.         
+     * 
+     * Example config/params.php
+     * return [
+     *        ...
+     *        'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
+     *        ...
+     * ];
+     * 
+     * @return Role[] all roles directly assigned to the user. The array is indexed by the role names.
+     */
+    public function updateGroupAssignment() {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('updateGroupAssignment', static::YII2_PROFILE_NAME . 'updateGroupAssignment');
+        }
+        
+        $ldapGroupsAssignedToUser = $this->getGroupsAssignedInLdap(); //Query LDAP groups assigned to user
+        $yiiRolesAssignedToUser = Yii::$app->authManager->getRolesByUser($this->getId()); //Get all roles assigned to user
+        $yiiAvailableRoles = Yii::$app->authManager->getRoles(); //Get all avaliable roles in yii2
+        
+        //Map groups from LDAP to roles and add to user object.
+        if (static::getGroupAssigmentOptions('ADD_GROUPS_FROM_LDAP_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == true) {
+            foreach ($ldapGroupsAssignedToUser as $gn) {
+                if(preg_match(static::getGroupAssigmentOptions('REGEX_GROUP_MATCH_IN_LDAP',$this->individualGroupAssignmentOptions),$gn) == true) {                    
+                    if(array_key_exists($gn,$yiiAvailableRoles) && !array_key_exists($gn,$yiiRolesAssignedToUser)) {
+                        if ($this->isNewRecord) {
+                            $this->generateAuthKey();
+                            $this->updateAccountStatus();                        
+                            $this->save(); //Save to db to get id from database
+                        }
+                        $auth = Yii::$app->authManager;
+                        $role = $auth->getRole($gn);
+                        $auth->assign($role, $this->getId());                
+                    }       
+                }
+            }
+        }
+        
+        //Remove all roles from user object which are not in LDAP
+        if (static::getGroupAssigmentOptions('REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP',$this->individualGroupAssignmentOptions) == true && 
+            static::getGroupAssigmentOptions('REMOVE_ONLY_GROUPS_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == false) {
+            foreach ($yiiRolesAssignedToUser as $role) {
+                if(in_array($role->name,$ldapGroupsAssignedToUser) == false) {
+                        $auth = Yii::$app->authManager;
+                        $auth->revoke($role, $this->getId());                     
+                }
+            }            
+        }
+        
+        //Remove all roles from user object which are matching the regex and are not in LDAP
+        if (static::getGroupAssigmentOptions('REMOVE_ONLY_GROUPS_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == true) {
+            foreach ($yiiRolesAssignedToUser as $role) {
+                $roleName = $role->name;
+                
+                if(preg_match(static::getGroupAssigmentOptions('REGEX_GROUP_MATCH_IN_LDAP',$this->individualGroupAssignmentOptions),$roleName) == true && 
+                   in_array($roleName,$ldapGroupsAssignedToUser) == false) {
+                            $auth = Yii::$app->authManager;
+                            $auth->revoke($role, $this->getId());
+                }
+            }
+        }
+        
+        $rolesAfterUpdate = Yii::$app->authManager->getRolesByUser($this->getId());
+        
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('updateGroupAssignment', static::YII2_PROFILE_NAME . 'updateGroupAssignment');
+        }
+        
+        //Return assigned roles.
+        return $rolesAfterUpdate;
+    }
+    
+    /**
+     * Query all groups assigned to user from Active Directory.
+     * If the parameter SEARCH_NESTED_GROUPS = true then all nested groups are
+     * respected too.
+     * Keep in mind, that a query for nested groups is much slower as a normal query.
+     * 
+     * @return array with names of groups assigned to user. Empty if no groups found.
+     */
+    public function getGroupsAssignedInLdap() {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('getGroupsAssignedInLdap', static::YII2_PROFILE_NAME . 'getGroupsAssignedInLdap');
+        }
+        
+        $ldapUser = $this->queryLdapUserObject();
+        
+        $ldapGroupsConverted = []; //start with empty array of groups
+        
+        if ($ldapUser != null) {
+            //check for nested groups?
+            if (static::getGroupAssigmentOptions('SEARCH_NESTED_GROUPS',$this->individualGroupAssignmentOptions) == true) {
+                //$ldapGroups=$ldapUser->getGroups(['cn'], $recursive=true); //alternate Query, but slower
+                //1.2.840.113556.1.4.1941 = Specical OID to resolve chains
+                $ldapGroups = $this->getAdldap2Provider()->search()->rawFilter('(member:1.2.840.113556.1.4.1941:=' . $ldapUser->getDn() . ')')->select('cn')->raw()->get();
+                if ($ldapGroups == null) {
+                    $ldapGroups = [];
+                }
+
+                //get cn of each group
+                foreach ($ldapGroups as $groupDn) {
+                    if (is_array($groupDn) && array_key_exists('cn', $groupDn)) {
+                        array_push($ldapGroupsConverted, $groupDn['cn'][0]);
+                    }
+                }
+            } else {
+                //get attribute memberof
+                $ldapGroups = $ldapUser->getAttribute('memberof');
+                if ($ldapGroups == null) {
+                    $ldapGroups = [];
+                }
+
+                //get first part of dn
+                foreach ($ldapGroups as $groupDn) {
+                    $n = Utilities::explodeDn($groupDn)[0];
+                    array_push($ldapGroupsConverted, $n);
+                }
+            }
+        }
+
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('getGroupsAssignedInLdap', static::YII2_PROFILE_NAME . 'getGroupsAssignedInLdap');
+        }
+        return $ldapGroupsConverted;      
+    }
+    
+    /**
+     * Querys the complete user object from LDAP.
+     * The username of the object has to be set before a query!
+     * 
+     * @return \Adldap\models\User
+     * @throws \yii\base\Exception if the username is not set and thus no LDAP query based on username can be done.
+     */
+    public function queryLdapUserObject() {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('queryLdapUserObject', static::YII2_PROFILE_NAME . 'queryLdapUserObject');
+        }
+        
+        if ($this->ldapUserObject == null) {
+            if ($this->username == null) {
+                throw new \yii\base\Exception('Please set username attribute before calling queryLdapUserObject() function.');
+            }
+
+            $userObjectsFound = $this->getAdldap2Provider()->search()->findBy('sAMAccountname', $this->username);
+			
+            if(count($userObjectsFound) != 1) {
+                $this->ldapUserObject = null;
+            } else {
+                $this->ldapUserObject = $userObjectsFound;
+            }
+        }
+        
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('queryLdapUserObject', static::YII2_PROFILE_NAME . 'queryLdapUserObject');
+        }
+        
+        return $this->ldapUserObject;
+    }
+    
+    /**
+     * Get the Adldap2 provider name
+     */
+    private function getAdldap2Provider() {
+        if(isset(Yii::$app->params['yii2-adldap-providername'])) {
+            $provider =Yii::$app->ad->getProvider(Yii::$app->params['yii2-adldap-providername']);
+        } else {
+            $provider =Yii::$app->ad->getDefaultProvider();
+        }
+
+        return $provider;
+    }
+
     /**
      * Set a individual LDAP synchronisation configuration object for this object.
      * 
@@ -548,7 +901,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * If nothing is defined the defaults from the varibale SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK
      * are used.
      * 
-     * @param string $getOptionByName The option key of the value to retrive.
+     * @param string $optionName The option key of the value to retrive.
+     * @param string $individualSyncOptions Array with individual sync options for this function call only
      * @return mixed The value of the option key
      * @throws \yii\base\Exception if option key is not found in the given option set.
      */
@@ -562,11 +916,11 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //try yii2 params
-        else if (isset(\Yii::$app->params['LDAP-User-Sync-Options']) &&
-            is_array(\Yii::$app->params['LDAP-User-Sync-Options']) &&
-            array_key_exists($optionName, \Yii::$app->params['LDAP-User-Sync-Options']))
+        else if (isset(Yii::$app->params['LDAP-User-Sync-Options']) &&
+            is_array(Yii::$app->params['LDAP-User-Sync-Options']) &&
+            array_key_exists($optionName, Yii::$app->params['LDAP-User-Sync-Options']))
         {
-            return \Yii::$app->params['LDAP-User-Sync-Options'][$optionName];
+            return Yii::$app->params['LDAP-User-Sync-Options'][$optionName];
         }
         
         //default from distribution
@@ -598,7 +952,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * 
      * See function updateGroupAssignment for further explanation.
      * 
-     * @param string $getOptionByName The option key of the value to retrive.
+     * @param string $optionName The option key of the value to retrive.
+     * @param string $individualSyncOptions Array with individual group assignment options for this function call only 
      * @return mixed The value of the option key
      * @throws \yii\base\Exception if option key is not found in the given option set.
      */    
@@ -612,11 +967,11 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //try yii2 params
-        else if (isset(\Yii::$app->params['LDAP-Group-Assignment-Options']) &&
-            is_array(\Yii::$app->params['LDAP-Group-Assignment-Options']) && 
-            array_key_exists($optionName, \Yii::$app->params['LDAP-Group-Assignment-Options'])) 
+        else if (isset(Yii::$app->params['LDAP-Group-Assignment-Options']) &&
+            is_array(Yii::$app->params['LDAP-Group-Assignment-Options']) && 
+            array_key_exists($optionName, Yii::$app->params['LDAP-Group-Assignment-Options'])) 
         {
-            return \Yii::$app->params['LDAP-Group-Assignment-Options'][$optionName];
+            return Yii::$app->params['LDAP-Group-Assignment-Options'][$optionName];
         }
         
         //default from distribution
@@ -631,263 +986,35 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     }
     
     /**
-     * Create a new object in database.
+     * Get a value of the group assignment options by option key.
+     * The options can be defined global in the yii2 params.php.
+     * If nothing is defined the defaults from the varibale EXTENSION_OPTIONS_DEFAULT
+     * are used.
      * 
-     * @param string $username username of the LDAP user.
-     * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap object. Null if the username is not found in LDAP.
+     * @param string $optionName The option key of the value to retrive.
+     * @return mixed The value of the option key
+     * @throws \yii\base\Exception if option key is not found in the given option set.
      */
-    public static function createNewUser($username,$individualGroupAssignmentOptions = null) {
-        $userObjectDb = new static();
-
-        //Username has to be set before a LDAP query
-        $userObjectDb->username = $username;
-        $userObjectDb->setIndividualGroupAssignmentOptions($individualGroupAssignmentOptions);
-        
-        //Check if user exists in LDAP.
-        if($userObjectDb->queryLdapUserObject() == null) {
-            return null;
+    public static function getExtensionOptions($optionName) {        
+        //try yii2 params
+        if (isset(Yii::$app->params['yii2-adldap-extension-Options']) &&
+            is_array(Yii::$app->params['yii2-adldap-extension-Options']) && 
+            array_key_exists($optionName, Yii::$app->params['yii2-adldap-extension-Options'])) 
+        {
+            return Yii::$app->params['yii2-adldap-extension-Options'][$optionName];
         }
         
-        $roles = $userObjectDb->updateGroupAssignment();
-
-        if (count($roles) > 0 || static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) == null) {
-            $userObjectDb->generateAuthKey();
-            $userObjectDb->updateAccountStatus();
-            $userObjectDb->save();
-        } else {
-            $userObjectDb = null;
-        }
+        //default from distribution
+        else if (array_key_exists($optionName, static::EXTENSION_OPTIONS_DEFAULT)) {
+            return static::EXTENSION_OPTIONS_DEFAULT[$optionName];
+        } 
         
-        return $userObjectDb;
-    }
+        //Exception
+        else {
+            throw new \yii\base\Exception('Extension-Option ' . $optionName . ' not found. Please define settings in the config/params.php of the yii2 framework as described on top of the UserDbLdap.php');   
+        }
+    }    
     
-    /**
-     * Check if a user exists. If the user exists the account status and group assigments are refreshed.
-     * Otherwise a new user is created.
-     * 
-     * @param string $username
-     * @param array $individualGroupAssignmentOptions
-     * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap object. Null if the username is not found in LDAP.
-     */
-    public static function createOrRefreshUser($username,$individualGroupAssignmentOptions = null) {
-        $userObjectDb = static::findOne(['username' => $username]); 
-
-        //Create user if not found in db
-        if ($userObjectDb == null) {        
-            return static::createNewUser($username, $individualGroupAssignmentOptions);
-        }
-        
-        $userObjectDb->setIndividualGroupAssignmentOptions($individualGroupAssignmentOptions);
-        $userObjectDb->updateAccountStatus();
-        $userObjectDb->updateGroupAssignment();
-        
-        return $userObjectDb;
-    }
-    
-    /**
-     * Query LDAP for the current user status and save the information to database.
-     * 
-     * @return int Status after update
-     */
-    public function updateAccountStatus() {
-        \Yii::beginProfile('LDAP updateAccountStatus function');
-        $ldapUser = $this->queryLdapUserObject();
-        
-        if ($ldapUser == null) {
-            //If no user is found in LDAP, disable in database.
-            $this->status = static::STATUS_DISABLED;
-        } else {
-            //Query account status from active directory
-            $ldapAccountState = $ldapUser->getUserAccountControl();
-
-            $disabledUser = ($ldapAccountState & AccountControl::ACCOUNTDISABLE) === AccountControl::ACCOUNTDISABLE;
-            $lockedUser = ($ldapAccountState & AccountControl::LOCKOUT) === AccountControl::LOCKOUT;
-            $pwExpired = ($ldapAccountState & AccountControl::PASSWORD_EXPIRED) === AccountControl::PASSWORD_EXPIRED;
-
-            if($disabledUser == true || $lockedUser == true || $pwExpired == true) {
-                $this->status = static::STATUS_DISABLED;
-            } else {
-                $this->status = static::STATUS_ENABLED;
-            }
-        }
-        
-        $this->save();
-        
-        \Yii::endProfile('LDAP updateAccountStatus function');
-        return $this->status;
-    }
-    
-    
-    /**
-     * Update the group assignment of the user object
-     * The \Yii::$app->params['LDAP-Group-Assignment-Options'] has several options how to update the group assignment.
-     * 
-     * Basicly a query to LDAP is done which returns the groups assigned to the user in the LDAP directory.
-     * Depending on the settings in the params groups are added or removed from the user object.
-     * 
-     * For a description of the options see the top of this class, where templates (e.g. GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX) are defined.
-     * This Templates can be used directly in params or you can define each param by yourself.         
-     * 
-     * Example config/params.php
-     * return [
-     *        ...
-     *        'LDAP-Group-Assignment-Options' => Edvlerblog\Adldap2\model\UserDbLdap::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX,
-     *        ...
-     * ];
-     * 
-     * @return Role[] all roles directly assigned to the user. The array is indexed by the role names.
-     */
-    public function updateGroupAssignment() {
-        \Yii::beginProfile('LDAP updateGroupAssignment function');
-        
-        $ldapGroupsAssignedToUser = $this->getGroupsAssignedInLdap(); //Query LDAP groups assigned to user
-        $yiiRolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($this->getId()); //Get all roles assigned to user
-        $yiiAvailableRoles = \Yii::$app->authManager->getRoles(); //Get all avaliable roles in yii2
-        
-        //Map groups from LDAP to roles and add to user object.
-        if (static::getGroupAssigmentOptions('ADD_GROUPS_FROM_LDAP_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == true) {
-            foreach ($ldapGroupsAssignedToUser as $gn) {
-                if(preg_match(static::getGroupAssigmentOptions('REGEX_GROUP_MATCH_IN_LDAP',$this->individualGroupAssignmentOptions),$gn) == true) {                    
-                    if(array_key_exists($gn,$yiiAvailableRoles) && !array_key_exists($gn,$yiiRolesAssignedToUser)) {
-                        if ($this->isNewRecord) {
-                            $this->generateAuthKey();
-                            $this->updateAccountStatus();                        
-                            $this->save(); //Save to db to get id from database
-                        }
-                        $auth = \Yii::$app->authManager;
-                        $role = $auth->getRole($gn);
-                        $auth->assign($role, $this->getId());                
-                    }       
-                }
-            }
-        }
-        
-        //Remove all roles from user object which are not in LDAP
-        if (static::getGroupAssigmentOptions('REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP',$this->individualGroupAssignmentOptions) == true && 
-            static::getGroupAssigmentOptions('REMOVE_ONLY_GROUPS_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == false) {
-            foreach ($yiiRolesAssignedToUser as $role) {
-                if(in_array($role->name,$ldapGroupsAssignedToUser) == false) {
-                        $auth = \Yii::$app->authManager;
-                        $auth->revoke($role, $this->getId());                     
-                }
-            }            
-        }
-        
-        //Remove all roles from user object which are matching the regex and are not in LDAP
-        if (static::getGroupAssigmentOptions('REMOVE_ONLY_GROUPS_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == true) {
-            foreach ($yiiRolesAssignedToUser as $role) {
-                $roleName = $role->name;
-                
-                if(preg_match(static::getGroupAssigmentOptions('REGEX_GROUP_MATCH_IN_LDAP',$this->individualGroupAssignmentOptions),$roleName) == true && 
-                   in_array($roleName,$ldapGroupsAssignedToUser) == false) {
-                            $auth = \Yii::$app->authManager;
-                            $auth->revoke($role, $this->getId());
-                }
-            }
-        }
-        
-        $rolesAfterUpdate = \Yii::$app->authManager->getRolesByUser($this->getId());
-        \Yii::endProfile('LDAP updateGroupAssignment function');
-        
-        //Return assigned roles.
-        return $rolesAfterUpdate;
-    }
-    
-    /**
-     * Query all groups assigned to user from Active Directory.
-     * If the parameter SEARCH_NESTED_GROUPS = true then all nested groups are
-     * respected too.
-     * Keep in mind, that a query for nested groups is much slower as a normal query.
-     * 
-     * @return array with names of groups assigned to user. Empty if no groups found.
-     */
-    public function getGroupsAssignedInLdap() {
-        \Yii::beginProfile('LDAP getGroupsAssignedInLdap function');
-        
-        $ldapUser = $this->queryLdapUserObject();
-        
-        if ($ldapUser == null) {
-            \Yii::endProfile('LDAP getGroupsAssignedInLdap function');
-            return []; //return empty array
-        }
-        
-        $ldapGroupsConverted = []; //start with empty array of groups
-        
-        //check for nested groups?
-        if (static::getGroupAssigmentOptions('SEARCH_NESTED_GROUPS',$this->individualGroupAssignmentOptions) == true) {
-            //$ldapGroups=$ldapUser->getGroups(['cn'], $recursive=true); //alternate Query, but slower
-            //1.2.840.113556.1.4.1941 = Specical OID to resolve chains
-            $ldapGroups = $this->getAdldap2Provider()->search()->rawFilter('(member:1.2.840.113556.1.4.1941:=' . $ldapUser->getDn() . ')')->select('cn')->raw()->get();
-            if ($ldapGroups == null) {
-                $ldapGroups = [];
-            }
-            
-            //get cn of each group
-            foreach ($ldapGroups as $groupDn) {
-                if (is_array($groupDn) && array_key_exists('cn', $groupDn)) {
-                    array_push($ldapGroupsConverted, $groupDn['cn'][0]);
-                }
-            }
-        } else {
-            //get attribute memberof
-            $ldapGroups = $ldapUser->getAttribute('memberof');
-            if ($ldapGroups == null) {
-                $ldapGroups = [];
-            }
-
-            //get first part of dn
-            foreach ($ldapGroups as $groupDn) {
-                $n = Utilities::explodeDn($groupDn)[0];
-                array_push($ldapGroupsConverted, $n);
-            }
-        }
-
-        \Yii::endProfile('LDAP getGroupsAssignedInLdap function');
-        return $ldapGroupsConverted;      
-    }
-    
-    /**
-     * Querys the complete user object from LDAP.
-     * The username of the object has to be set before a query!
-     * 
-     * @return \Adldap\models\User
-     * @throws \yii\base\Exception if the username is not set and thus no LDAP query based on username can be done.
-     */
-    public function queryLdapUserObject() {
-        \Yii::beginProfile('LDAP queryLdapUserObject function');
-        
-        if ($this->ldapUserObject == null) {
-            if ($this->username == null) {
-                throw new \yii\base\Exception('Please set username attribute before calling queryLdapUserObject() function.');
-            }
-
-            $userObjectsFound = $this->getAdldap2Provider()->search()->findBy('sAMAccountname', $this->username);
-			
-            if(count($userObjectsFound) != 1) {
-                $this->ldapUserObject = null;
-            } else {
-                $this->ldapUserObject = $userObjectsFound;
-            }
-        }
-        
-        \Yii::endProfile('LDAP queryLdapUserObject function');
-        
-        return $this->ldapUserObject;
-    }
-    
-    /**
-     * Get the Adldap2 provider name
-     */
-    private function getAdldap2Provider() {
-        if(isset(\Yii::$app->params['yii2-adldap-providername'])) {
-            $provider =\Yii::$app->ad->getProvider(\Yii::$app->params['yii2-adldap-providername']);
-        } else {
-            $provider =\Yii::$app->ad->getDefaultProvider();
-        }
-
-        return $provider;
-    }
-	
     /**
      * Get the password expirytime
      * See: https://msdn.microsoft.com/en-us/library/cc223410.aspx
