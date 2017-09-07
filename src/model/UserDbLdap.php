@@ -155,9 +155,9 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             'ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS' => false,
             'ON_LOGIN_REFRESH_GROUP_ASSIGNMENTS' => false,
             'ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS' => false
-        ];    
+        ];
 
-    
+
      /**
      * Constants starting with GROUP_ASSIGNMENT_****
      * This constant defines all options needed, that are influence the Active Directory group to yii2 role matching
@@ -187,8 +187,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *   return [
      *       //...
      *       'LDAP-Group-Assignment-Options' => [
-     *                                           'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/",
-     *                                           'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // start with
+     *                                           'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => '/(.*)/',
+     *                                           'REGEX_GROUP_MATCH_IN_LDAP' => '/^(yii2|app)(.*)/', // start with
      *                                           'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
      *                                           'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
      *                                           'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
@@ -199,15 +199,15 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *
      * 
      * Some options use regex. Here are some exmaples for common use cases:
-     * $regex = "/^(yii2)(.*)/"; // Evaluates to true if the beginning of the groupname is yii2. Example yii2_create_post gives true
-     * $regex = "/^(yii2|app)(.*)/"; // Evaluates to true if the beginning of the groupname is yii2 OR app. Example yii2_create_post gives true, app_create_post gives true
-     * $regex = "/(.*)(yii2)$/"; //  Evaluates to true if the end of the groupname is yii2. Example create_post_yii2 gives true
-     * $regex = "/(.*)(yii2|app)$/"; // Evaluates to true if the end of the groupname is yii2 OR app. Example create_post_yii2 gives true, create_post_app gives true
-     * $regex = "/^(yii2_complete_group_name)$/"; // Evaluates to true if the complete groupname matches yii2_complete_group_name
-     * $regex = "/^(yii2_complete_group_name|another_complete_group_name)$/"; // Evaluates to true if the complete groupname matches yii2_complete_group_name OR another_complete_group_name
-     * $regex = "/(yii2)/"; // Evaluates to true if the groupname contains yii2. Example group_yii2_post gives true
-     * $regex = "/(yii2|app)/"; // Evaluates to true if the groupname contains yii2. Example group_yii2_post gives true, Example group_app_post gives true,
-     * $regex = "/(.*)/"; // Evaluates to true on every groupname
+     * $regex = '/^(yii2)(.*)/'; // Evaluates to true if the beginning of the groupname is yii2. Example yii2_create_post gives true
+     * $regex = '/^(yii2|app)(.*)/'; // Evaluates to true if the beginning of the groupname is yii2 OR app. Example yii2_create_post gives true, app_create_post gives true
+     * $regex = '/(.*)(yii2)$/'; //  Evaluates to true if the end of the groupname is yii2. Example create_post_yii2 gives true
+     * $regex = '/(.*)(yii2|app)$/'; // Evaluates to true if the end of the groupname is yii2 OR app. Example create_post_yii2 gives true, create_post_app gives true
+     * $regex = '/^(yii2_complete_group_name)$/'; // Evaluates to true if the complete groupname matches yii2_complete_group_name
+     * $regex = '/^(yii2_complete_group_name|another_complete_group_name)$/'; // Evaluates to true if the complete groupname matches yii2_complete_group_name OR another_complete_group_name
+     * $regex = '/(yii2)/'; // Evaluates to true if the groupname contains yii2. Example group_yii2_post gives true
+     * $regex = '/(yii2|app)/'; // Evaluates to true if the groupname contains yii2. Example group_yii2_post gives true, Example group_app_post gives true,
+     * $regex = '/(.*)/'; // Evaluates to true on every groupname
      */   
     
     
@@ -228,11 +228,11 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
              * If a regex is given, a role has to be assinged that matches the regex given for this key to successfully login.
              * 
              * For example with the regex
-             * 'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/";
+             * 'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => '/(.*)/';
              * a user can only login if a role is assigned. But the name can be anything.
              * 
              * With this regex
-             * 'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/^(yii2)(.*)/";
+             * 'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => '/^(yii2)(.*)/';
              * a user can only login if a role is assigned which name is starting with yii2.
              */
             'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => null, // no role necceassarry for login
@@ -245,7 +245,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
              * In this example only groups starting with yii2 and app would be assigned to the user
              * if a corresponding role (again names has to be the same!) exists in yii2.
              */
-            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // groupname start with yii2 or app
+            'REGEX_GROUP_MATCH_IN_LDAP' => '/^(yii2|app)(.*)/', // groupname start with yii2 or app
         
             /*
              * ADD_GROUPS_FROM_LDAP_MATCHING_REGEX
@@ -294,8 +294,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * The only differnce is, that a login is only allowed with a role assigned.
      */    
     const GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX_WITH_ROLE = [
-            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/", // a role has to be assign, the name could be everything
-            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // start with
+            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => '/(.*)/', // a role has to be assign, the name could be everything
+            'REGEX_GROUP_MATCH_IN_LDAP' => '/^(yii2|app)(.*)/', // start with
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
             'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
@@ -309,8 +309,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * The roles assigned to the user object are always the same as the member of attribute of the active directory user.
      */      
     const GROUP_ASSIGNMENT_LDAP_MANDANTORY = [
-            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/(.*)/",
-            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // start with
+            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => '/(.*)/',
+            'REGEX_GROUP_MATCH_IN_LDAP' => '/^(yii2|app)(.*)/', // start with
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
             'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
@@ -361,7 +361,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        throw new NotSupportedException('Edvlerblog\Adldap2\model\UserDbLdap::findIdentityByAccessToken($token, $type = null) is not implemented.');
     }    
     
     /**
@@ -402,8 +402,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * @param string $username username of the user object
      * @return Edvlerblog\Adldap2\model\UserDbLdapDbLdap A User instance if user is valid. Otherwise NULL.
      */
-    public static function findByUsername($username)
-    {
+    public static function findByUsername($username) {
         $userObjectDb = static::findOne(['username' => $username]); 
 
         //Create user if not found in db
@@ -411,7 +410,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             //Just create to get synchronisation options
             $userObjectDb = new static();
             
-            if(static::getSyncOptions("ON_LOGIN_CREATE_USER", $userObjectDb->individualSyncOptions) == true) {
+            if(static::getSyncOptions('ON_LOGIN_CREATE_USER', $userObjectDb->individualSyncOptions) == true) {
                 $userObjectDb = static::createNewUser($username);
             } else {
                 $userObjectDb = null;
@@ -470,7 +469,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             $rolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($userObjectDb->getId());
             
             foreach ($rolesAssignedToUser as $role) {
-                if(preg_match(static::getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX",$userObjectDb->individualGroupAssignmentOptions),$role->name) == true) {
+                if(preg_match(static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions),$role->name) == true) {
                     return $userObjectDb;
                 }
             }
@@ -556,8 +555,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         
         if($individualSyncOptions != null) {
             $syncOptionsUsed = $individualSyncOptions;
-        } else if(isset(\Yii::$app->params["LDAP-User-Sync-Options"]) && $individualSyncOptions == null ) {
-            $syncOptionsUsed = \Yii::$app->params["LDAP-User-Sync-Options"];
+        } else if(isset(\Yii::$app->params['LDAP-User-Sync-Options']) && $individualSyncOptions == null ) {
+            $syncOptionsUsed = \Yii::$app->params['LDAP-User-Sync-Options'];
         } else {
             $syncOptionsUsed = static::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK;
         }
@@ -565,7 +564,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         if (array_key_exists($getOptionByName,$syncOptionsUsed) == true) {
             return $syncOptionsUsed[$getOptionByName];
         } else {
-            throw new \yii\base\Exception("Option " . $getOptionByName . " not found. See const MODE_TEMPLATES variable in Class LdapDbUser for example. Current options used: " . print_r($syncOptionsUsed,true));
+            throw new \yii\base\Exception('Option ' . $getOptionByName . ' not found. See const MODE_TEMPLATES variable in Class LdapDbUser for example. Current options used: ' . print_r($syncOptionsUsed,true));
         }
     }
 
@@ -592,8 +591,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         
         if(isset($individualGroupAssignmentOptions) != null) {
             $groupOptionsUsed = $userDbLdapObject->individualGroupAssignmentOptions;
-        } else if(isset(\Yii::$app->params["LDAP-Group-Assignment-Options"]) && $individualGroupAssignmentOptions == null ) {
-            $groupOptionsUsed = \Yii::$app->params["LDAP-Group-Assignment-Options"];
+        } else if(isset(\Yii::$app->params['LDAP-Group-Assignment-Options']) && $individualGroupAssignmentOptions == null ) {
+            $groupOptionsUsed = \Yii::$app->params['LDAP-Group-Assignment-Options'];
         } else {
             $groupOptionsUsed = static::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX;
         }
@@ -601,7 +600,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         if (array_key_exists($getOptionByName,$groupOptionsUsed) == true) {
             return $groupOptionsUsed[$getOptionByName];
         } else {
-            throw new \yii\base\Exception("Option " . $getOptionByName . " not found. See const MODE_TEMPLATES variable in Class LdapDbUser for example. Current options used: " . print_r($groupOptionsUsed,true));
+            throw new \yii\base\Exception('Option ' . $getOptionByName . ' not found. See const MODE_TEMPLATES variable in Class LdapDbUser for example. Current options used: ' . print_r($groupOptionsUsed,true));
         }
     }    
     
@@ -626,7 +625,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         
         $roles = $userObjectDb->updateGroupAssignment();
 
-        if (count($roles) > 0 || static::getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX",$userObjectDb->individualGroupAssignmentOptions) == null) {
+        if (count($roles) > 0 || static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) == null) {
             $userObjectDb->generateAuthKey();
             $userObjectDb->updateAccountStatus();
             $userObjectDb->save();
@@ -696,7 +695,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     
     /**
      * Update the group assignment of the user object
-     * The \Yii::$app->params["LDAP-Group-Assignment-Options"] has several options how to update the group assignment.
+     * The \Yii::$app->params['LDAP-Group-Assignment-Options'] has several options how to update the group assignment.
      * 
      * Basicly a query to LDAP is done which returns the groups assigned to the user in the LDAP directory.
      * Depending on the settings in the params groups are added or removed from the user object.
@@ -820,7 +819,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
 
         \Yii::endProfile('LDAP getGroupsAssignedInLdap function');
         return $ldapGroupsConverted;      
-    }    
+    }
     
     /**
      * Querys the complete user object from LDAP.
@@ -834,7 +833,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         
         if ($this->ldapUserObject == null) {
             if ($this->username == null) {
-                throw new \yii\base\Exception("Please set username attribute before calling queryLdapUserObject() function.");
+                throw new \yii\base\Exception('Please set username attribute before calling queryLdapUserObject() function.');
             }
 
             $userObjectsFound = $this->getAdldap2Provider()->search()->findBy('sAMAccountname', $this->username);
@@ -855,8 +854,8 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * Get the Adldap2 provider name
      */
     private function getAdldap2Provider() {
-        if(isset(\Yii::$app->params["yii2-adldap-providername"])) {
-            $provider =\Yii::$app->ad->getProvider(\Yii::$app->params["yii2-adldap-providername"]);
+        if(isset(\Yii::$app->params['yii2-adldap-providername'])) {
+            $provider =\Yii::$app->ad->getProvider(\Yii::$app->params['yii2-adldap-providername']);
         } else {
             $provider =\Yii::$app->ad->getDefaultProvider();
         }
@@ -870,9 +869,9 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      */
     public function getPasswordExpiryDate() {
         if ($this->username == null) {
-			throw new \yii\base\Exception("Please set username attribute before calling getPasswordExpiryDate() function.");
-        }	    
-	    
+            throw new \yii\base\Exception('Please set username attribute before calling getPasswordExpiryDate() function.');
+        }
+        
         $result = $this->getAdldap2Provider()->
                   search()->
                   select(['msDS-UserPasswordExpiryTimeComputed'])->
