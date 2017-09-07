@@ -406,7 +406,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     {
         $userObjectDb = static::findOne(['username' => $username]); 
 
-        //Create user if not found in db?
+        //Create user if not found in db
         if ($userObjectDb == null) {
             //Just create to get synchronisation options
             $userObjectDb = new static();
@@ -416,20 +416,25 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             } else {
                 $userObjectDb = null;
             }
-            return $userObjectDb;
+        } else {
+            //Refresh group assignments of user if found in database
+            if ($userObjectDb->username != null &&
+                static::getSyncOptions('ON_LOGIN_REFRESH_GROUP_ASSIGNMENTS', $userObjectDb->individualSyncOptions) == true)
+            {
+                $userObjectDb->updateGroupAssignment();
+            }
+
+            //Refresh account status of user if found in database
+            if ($userObjectDb->username != null &&
+                static::getSyncOptions('ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == true &&
+                static::getSyncOptions('ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == false)
+            {
+                $userObjectDb->updateAccountStatus();
+            }
         }
         
-        //Refresh group assignments of user if found in database?
-        if ($userObjectDb->username != null && static::getSyncOptions("ON_LOGIN_REFRESH_GROUP_ASSIGNMENTS", $userObjectDb->individualSyncOptions) == true) {
-            $userObjectDb->updateGroupAssignment();
-        }
-        
-        //Refresh account status of user if found in database?
-        if ($userObjectDb->username != null && static::getSyncOptions("ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS", $userObjectDb->individualSyncOptions) == true && static::getSyncOptions("ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS", $userObjectDb->individualSyncOptions) == false) {
-            $userObjectDb->updateAccountStatus();
-        }        
-        
-        return static::checkAllowedToLogin($userObjectDb);
+        $allowedToLogin = static::checkAllowedToLogin($userObjectDb);        
+        return $allowedToLogin;
     }
     
     /**
@@ -452,12 +457,16 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //Refresh account status on every request?
-        if ($userObjectDb->username != null && static::getSyncOptions("ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS", $userObjectDb->individualSyncOptions) == true) {
+        if ($userObjectDb->username != null && 
+            static::getSyncOptions('ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == true)
+        {
             $userObjectDb->updateAccountStatus();
         }
         
         //Login only possible if a role is assigned which matches the LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX regex
-        if ($userObjectDb->status == static::STATUS_ENABLED && static::getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX",$userObjectDb->individualGroupAssignmentOptions) != null) {
+        if ($userObjectDb->status == static::STATUS_ENABLED &&
+            static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) != null)
+        {
             $rolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($userObjectDb->getId());
             
             foreach ($rolesAssignedToUser as $role) {
@@ -468,7 +477,9 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //Login possible if no role is assigned
-        if ($userObjectDb->status == static::STATUS_ENABLED && static::getGroupAssigmentOptions("LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX",$userObjectDb->individualGroupAssignmentOptions) == null) {
+        if ($userObjectDb->status == static::STATUS_ENABLED &&
+            static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) == null)
+        {
             return $userObjectDb;
         }
         
@@ -862,11 +873,11 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
 			throw new \yii\base\Exception("Please set username attribute before calling getPasswordExpiryDate() function.");
         }	    
 	    
-        $provider = $this->getAdldap2Provider();
-        $search = $provider->search();  //start a search
-        $search = $search->select(['msDS-UserPasswordExpiryTimeComputed']); //Only query this attributes
-        $search = $search->where('samaccountname', '=', $this->username);
-        $result = $search->get();
-        return $result[0]->getFirstAttribute("msds-userpasswordexpirytimecomputed");        
+        $result = $this->getAdldap2Provider()->
+                  search()->
+                  select(['msDS-UserPasswordExpiryTimeComputed'])->
+                  where('samaccountname', '=', $this->username)->
+                  get();
+        return $result[0]->getFirstAttribute('msds-userpasswordexpirytimecomputed');        
     }	
 }
