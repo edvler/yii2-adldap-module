@@ -92,7 +92,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * 
      * In simple words: 
      * If you login with a Active Directory user, which is active, and the password matches you can login!
-     * On every login the above mentioned points are checked. 
+     * On every login the above mentioned points are checked.
      * For example: If a user is deactived, the next login would fail but the current session would be valid until logout.
      * 
      * One word of caution! There are further options which beginning with GROUP_ASSIGNMENT_***. This are also influence the login behavior.
@@ -130,8 +130,6 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
              */       
             'ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS' => false,
         ];
-    
-    
     
     /**
      * Constant SYNC_OPTIONS_TEMPLATE_ONLY_BACKEND_TASK
@@ -274,7 +272,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
              * 
              * This means the user always have the roles which are assingned as groups in Active Directory.
              * If you remove one, it would be removed in yii2 too.
-             * But other roles is yii2 would not be touched.
+             * But other roles assigned directly in yii2 would not be touched.
              */        
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true,
         
@@ -321,7 +319,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * Constants for a enabeld/disabled which are saved to database.
      */
     const STATUS_DISABLED = 0;
-    const STATUS_ENABLED = 1;    
+    const STATUS_ENABLED = 1;
     
     private $ldapUserObject = null;
     private $individualSyncOptions = null;
@@ -545,26 +543,40 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     
     /**
      * Get a value of the synchronisation options by option key.
+     * The options can be defined with the setIndividualSyncOptions
+     * function of this class for a single object, or global in the yii2 params.php.
+     * If nothing is defined the defaults from the varibale SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK
+     * are used.
      * 
      * @param string $getOptionByName The option key of the value to retrive.
      * @return mixed The value of the option key
      * @throws \yii\base\Exception if option key is not found in the given option set.
      */
-    public static function getSyncOptions($getOptionByName, $individualSyncOptions = null) {
-        $syncOptionsUsed = null;
-        
-        if($individualSyncOptions != null) {
-            $syncOptionsUsed = $individualSyncOptions;
-        } else if(isset(\Yii::$app->params['LDAP-User-Sync-Options']) && $individualSyncOptions == null ) {
-            $syncOptionsUsed = \Yii::$app->params['LDAP-User-Sync-Options'];
-        } else {
-            $syncOptionsUsed = static::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK;
+    public static function getSyncOptions($optionName, $individualSyncOptions = null) {
+        //try object specific settings
+        if ($individualSyncOptions != null &&
+            is_array($individualSyncOptions) &&
+            array_key_exists($optionName, $individualSyncOptions))
+        {
+            return $individualSyncOptions[$optionName];
         }
         
-        if (array_key_exists($getOptionByName,$syncOptionsUsed) == true) {
-            return $syncOptionsUsed[$getOptionByName];
-        } else {
-            throw new \yii\base\Exception('Option ' . $getOptionByName . ' not found. See const MODE_TEMPLATES variable in Class LdapDbUser for example. Current options used: ' . print_r($syncOptionsUsed,true));
+        //try yii2 params
+        else if (isset(\Yii::$app->params['LDAP-User-Sync-Options']) &&
+            is_array(\Yii::$app->params['LDAP-User-Sync-Options']) &&
+            array_key_exists($optionName, \Yii::$app->params['LDAP-User-Sync-Options']))
+        {
+            return \Yii::$app->params['LDAP-User-Sync-Options'][$optionName];
+        }
+        
+        //default from distribution
+        else if (array_key_exists($optionName, static::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK)) {
+            return static::SYNC_OPTIONS_TEMPLATE_WITHOUT_BACKEND_TASK[$optionName];
+        }
+        
+        //Exception
+        else {
+            throw new \yii\base\Exception('Sync-option ' . $optionName . ' not found. Please define settings in the config/params.php of the yii2 framework as described on top of the UserDbLdap.php');   
         }
     }
 
@@ -579,30 +591,44 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     
     /**
      * Get a value of the group assignment options by option key.
+     * The options can be defined with the setIndividualGroupAssignmentOptions
+     * function of this class for a single object, or global in the yii2 params.php.
+     * If nothing is defined the defaults from the varibale GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX
+     * are used.
      * 
      * See function updateGroupAssignment for further explanation.
      * 
      * @param string $getOptionByName The option key of the value to retrive.
      * @return mixed The value of the option key
      * @throws \yii\base\Exception if option key is not found in the given option set.
-     */
-    public static function getGroupAssigmentOptions($getOptionByName, $individualGroupAssignmentOptions = null) {
-        $groupOptionsUsed = null;
-        
-        if(isset($individualGroupAssignmentOptions) != null) {
-            $groupOptionsUsed = $userDbLdapObject->individualGroupAssignmentOptions;
-        } else if(isset(\Yii::$app->params['LDAP-Group-Assignment-Options']) && $individualGroupAssignmentOptions == null ) {
-            $groupOptionsUsed = \Yii::$app->params['LDAP-Group-Assignment-Options'];
-        } else {
-            $groupOptionsUsed = static::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX;
+     */    
+    public static function getGroupAssigmentOptions($optionName, $individualGroupAssignmentOptions = null) {
+        //try object specific settings
+        if ($individualGroupAssignmentOptions != null &&
+            is_array($individualGroupAssignmentOptions) && 
+            array_key_exists($optionName, $individualGroupAssignmentOptions)) 
+        {
+            return $individualGroupAssignmentOptions[$optionName];
         }
         
-        if (array_key_exists($getOptionByName,$groupOptionsUsed) == true) {
-            return $groupOptionsUsed[$getOptionByName];
-        } else {
-            throw new \yii\base\Exception('Option ' . $getOptionByName . ' not found. See const MODE_TEMPLATES variable in Class LdapDbUser for example. Current options used: ' . print_r($groupOptionsUsed,true));
+        //try yii2 params
+        else if (isset(\Yii::$app->params['LDAP-Group-Assignment-Options']) &&
+            is_array(\Yii::$app->params['LDAP-Group-Assignment-Options']) && 
+            array_key_exists($optionName, \Yii::$app->params['LDAP-Group-Assignment-Options'])) 
+        {
+            return \Yii::$app->params['LDAP-Group-Assignment-Options'][$optionName];
         }
-    }    
+        
+        //default from distribution
+        else if (array_key_exists($optionName, static::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX)) {
+            return static::GROUP_ASSIGNMENT_TOUCH_ONLY_MATCHING_REGEX[$optionName];
+        } 
+        
+        //Exception
+        else {
+            throw new \yii\base\Exception('Group-Option ' . $optionName . ' not found. Please define settings in the config/params.php of the yii2 framework as described on top of the UserDbLdap.php');   
+        }
+    }
     
     /**
      * Create a new object in database.
@@ -615,7 +641,6 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
 
         //Username has to be set before a LDAP query
         $userObjectDb->username = $username;
-        
         $userObjectDb->setIndividualGroupAssignmentOptions($individualGroupAssignmentOptions);
         
         //Check if user exists in LDAP.
