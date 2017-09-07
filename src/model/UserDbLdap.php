@@ -192,6 +192,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *                                           'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
      *                                           'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
      *                                           'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
+     *                                           'SEARCH_NESTED_GROUPS' => false
      *                                       ],
      *       //...
      *   ]; 
@@ -276,6 +277,13 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
              * But other roles is yii2 would not be touched.
              */        
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true,
+        
+            /*
+             * Check for groups, which are not directly assigned to the user, 
+             * but assigned to another group in which the user is member of.
+             * (keywords: nested groups, group tree, group as member of group).
+             */
+            'SEARCH_NESTED_GROUPS' => false        
         ];    
 
     
@@ -291,12 +299,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
             'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
+            'SEARCH_NESTED_GROUPS' => false  
         ];    
 
     /**
      * GROUP_ASSIGNMENT_LDAP_MANDANTORY constant
      * All roles that are not found in active directory as group will be removed from the user object.
-     * 
      * 
      * The roles assigned to the user object are always the same as the member of attribute of the active directory user.
      */      
@@ -306,6 +314,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true,
             'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => true,
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => false,
+            'SEARCH_NESTED_GROUPS' => false  
         ];
     
     //Constants for a enabeld/disabled which are saved to database.
@@ -694,33 +703,16 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      */
     public function updateGroupAssignment() {
         \Yii::beginProfile('LDAP updateGroupAssignment function');
-        $ldapUser = $this->queryLdapUserObject();
-        if ($ldapUser == null) {
-            \Yii::endProfile('LDAP updateGroupAssignment function');
-            return null;
-        }
         
-        //get attribute memberof
-        $ldapGroups = $ldapUser->getAttribute("memberof");
-        if ($ldapGroups == null) {
-            $ldapGroups = [];
-        }
-        
-        //convert attribute and get first part of dn
-        $ldapGroupsConverted = [];
-        foreach ($ldapGroups as $groupDn) {
-            $n = Utilities::explodeDn($groupDn)[0];
-            array_push($ldapGroupsConverted, $n);
-        }
-        
-        $yiiAviliableRoles = \Yii::$app->authManager->getRoles();
-        $rolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($this->getId());
+        $ldapGroupsAssignedToUser = $this->getGroupsAssignedInLdap(); //Query LDAP groups assigned to user
+        $yiiRolesAssignedToUser = \Yii::$app->authManager->getRolesByUser($this->getId()); //Get all roles assigned to user
+        $yiiAvailableRoles = \Yii::$app->authManager->getRoles(); //Get all avaliable roles in yii2
         
         //Map groups from LDAP to roles and add to user object.
-        if (static::getGroupAssigmentOptions("ADD_GROUPS_FROM_LDAP_MATCHING_REGEX",$this->individualGroupAssignmentOptions) == true) {
-            foreach ($ldapGroupsConverted as $gn) {
-                if(preg_match(static::getGroupAssigmentOptions("REGEX_GROUP_MATCH_IN_LDAP",$this->individualGroupAssignmentOptions),$gn) == true) {                    
-                    if(array_key_exists($gn,$yiiAviliableRoles) && !array_key_exists($gn,$rolesAssignedToUser)) {
+        if (static::getGroupAssigmentOptions('ADD_GROUPS_FROM_LDAP_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == true) {
+            foreach ($ldapGroupsAssignedToUser as $gn) {
+                if(preg_match(static::getGroupAssigmentOptions('REGEX_GROUP_MATCH_IN_LDAP',$this->individualGroupAssignmentOptions),$gn) == true) {                    
+                    if(array_key_exists($gn,$yiiAvailableRoles) && !array_key_exists($gn,$yiiRolesAssignedToUser)) {
                         if ($this->isNewRecord) {
                             $this->generateAuthKey();
                             $this->updateAccountStatus();                        
@@ -735,9 +727,10 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //Remove all roles from user object which are not in LDAP
-        if (static::getGroupAssigmentOptions("REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP",$this->individualGroupAssignmentOptions) == true && static::getGroupAssigmentOptions("REMOVE_ONLY_GROUPS_MATCHING_REGEX",$this->individualGroupAssignmentOptions) == false) {
-            foreach ($rolesAssignedToUser as $role) {
-                if(in_array($role->name,$ldapGroupsConverted) == false) {
+        if (static::getGroupAssigmentOptions('REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP',$this->individualGroupAssignmentOptions) == true && 
+            static::getGroupAssigmentOptions('REMOVE_ONLY_GROUPS_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == false) {
+            foreach ($yiiRolesAssignedToUser as $role) {
+                if(in_array($role->name,$ldapGroupsAssignedToUser) == false) {
                         $auth = \Yii::$app->authManager;
                         $auth->revoke($role, $this->getId());                     
                 }
@@ -745,22 +738,77 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
         
         //Remove all roles from user object which are matching the regex and are not in LDAP
-        if (static::getGroupAssigmentOptions("REMOVE_ONLY_GROUPS_MATCHING_REGEX",$this->individualGroupAssignmentOptions) == true) {
-            foreach ($rolesAssignedToUser as $role) {
+        if (static::getGroupAssigmentOptions('REMOVE_ONLY_GROUPS_MATCHING_REGEX',$this->individualGroupAssignmentOptions) == true) {
+            foreach ($yiiRolesAssignedToUser as $role) {
                 $roleName = $role->name;
                 
-                if(preg_match(static::getGroupAssigmentOptions("REGEX_GROUP_MATCH_IN_LDAP",$this->individualGroupAssignmentOptions),$roleName) == true && in_array($roleName,$ldapGroupsConverted) == false) {
+                if(preg_match(static::getGroupAssigmentOptions('REGEX_GROUP_MATCH_IN_LDAP',$this->individualGroupAssignmentOptions),$roleName) == true && 
+                   in_array($roleName,$ldapGroupsAssignedToUser) == false) {
                             $auth = \Yii::$app->authManager;
                             $auth->revoke($role, $this->getId());
                 }
             }
         }
         
+        $rolesAfterUpdate = \Yii::$app->authManager->getRolesByUser($this->getId());
         \Yii::endProfile('LDAP updateGroupAssignment function');
         
         //Return assigned roles.
-        return \Yii::$app->authManager->getRolesByUser($this->getId());
+        return $rolesAfterUpdate;
     }
+    
+    /**
+     * Query all groups assigned to user from Active Directory.
+     * If the parameter SEARCH_NESTED_GROUPS = true then all nested groups are
+     * respected too.
+     * Keep in mind, that a query for nested groups is much slower as a normal query.
+     * 
+     * @return array with names of groups assigned to user. Empty if no groups found.
+     */
+    public function getGroupsAssignedInLdap() {
+        \Yii::beginProfile('LDAP getGroupsAssignedInLdap function');
+        
+        $ldapUser = $this->queryLdapUserObject();
+        
+        if ($ldapUser == null) {
+            \Yii::endProfile('LDAP getGroupsAssignedInLdap function');
+            return []; //return empty array
+        }
+        
+        $ldapGroupsConverted = []; //start with empty array of groups
+        
+        //check for nested groups?
+        if (static::getGroupAssigmentOptions('SEARCH_NESTED_GROUPS',$this->individualGroupAssignmentOptions) == true) {
+            //$ldapGroups=$ldapUser->getGroups(['cn'], $recursive=true); //alternate Query, but slower
+            //1.2.840.113556.1.4.1941 = Specical OID to resolve chains
+            $ldapGroups = $this->getAdldap2Provider()->search()->rawFilter('(member:1.2.840.113556.1.4.1941:=' . $ldapUser->getDn() . ')')->select('cn')->raw()->get();
+            if ($ldapGroups == null) {
+                $ldapGroups = [];
+            }
+            
+            //get cn of each group
+            foreach ($ldapGroups as $groupDn) {
+                if (is_array($groupDn) && array_key_exists('cn', $groupDn)) {
+                    array_push($ldapGroupsConverted, $groupDn['cn'][0]);
+                }
+            }
+        } else {
+            //get attribute memberof
+            $ldapGroups = $ldapUser->getAttribute('memberof');
+            if ($ldapGroups == null) {
+                $ldapGroups = [];
+            }
+
+            //get first part of dn
+            foreach ($ldapGroups as $groupDn) {
+                $n = Utilities::explodeDn($groupDn)[0];
+                array_push($ldapGroupsConverted, $n);
+            }
+        }
+
+        \Yii::endProfile('LDAP getGroupsAssignedInLdap function');
+        return $ldapGroupsConverted;      
+    }    
     
     /**
      * Querys the complete user object from LDAP.
@@ -794,7 +842,6 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     /**
      * Get the Adldap2 provider name
      */
-    
     private function getAdldap2Provider() {
         if(isset(\Yii::$app->params["yii2-adldap-providername"])) {
             $provider =\Yii::$app->ad->getProvider(\Yii::$app->params["yii2-adldap-providername"]);
