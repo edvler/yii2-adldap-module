@@ -385,7 +385,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            ['status', 'default', 'value' => static::STATUS_ENABLED],
+            ['status', 'default', 'value' => static::STATUS_DISABLED],
             ['status', 'in', 'range' => [static::STATUS_ENABLED, static::STATUS_DISABLED]],
         ];
     }
@@ -409,12 +409,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         
         //Database check. If no dataset is found then the only possible return value is null.
         $userObjectDb = static::findOne(['id' => $id]);
-        $allowedToLogin = static::checkAllowedToLogin($userObjectDb);
+        $checkedUserObjectDB = static::checkAllowedToLogin($userObjectDb);
         
         if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
             Yii::endProfile('findIdentity', static::YII2_PROFILE_NAME . 'findIdentity');
         }
-        return $allowedToLogin;
+        return $checkedUserObjectDB;
     }
 
     /**
@@ -463,26 +463,23 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             }
         } else {
             //Refresh group assignments of user if found in database
-            if ($userObjectDb->username != null &&
-                static::getSyncOptions('ON_LOGIN_REFRESH_GROUP_ASSIGNMENTS', $userObjectDb->individualSyncOptions) == true)
-            {
+            if (static::getSyncOptions('ON_LOGIN_REFRESH_GROUP_ASSIGNMENTS', $userObjectDb->individualSyncOptions) == true) {
                 $userObjectDb->updateGroupAssignment();
             }
 
             //Refresh account status of user if found in database
-            if ($userObjectDb->username != null &&
-                static::getSyncOptions('ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == true &&
+            if (static::getSyncOptions('ON_LOGIN_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == true &&
                 static::getSyncOptions('ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == false)
             {
                 $userObjectDb->updateAccountStatus();
             }
         }
         
-        $allowedToLogin = static::checkAllowedToLogin($userObjectDb);
+        $checkedUserObjectDB = static::checkAllowedToLogin($userObjectDb);
         if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
             Yii::endProfile('findByUsername', static::YII2_PROFILE_NAME . 'findByUsername');
         }        
-        return $allowedToLogin;
+        return $checkedUserObjectDB;
     }
     
     /**
@@ -506,11 +503,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         
         $userInstanceAfterLogin = null;
         
-        if ($userObjectDb != null) {        
+        if ($userObjectDb != null && 
+            $userObjectDb->username != null &&
+            $userObjectDb->getId() != null
+            ) {        
             //Refresh account status on every request?
-            if ($userObjectDb->username != null && 
-                static::getSyncOptions('ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == true)
-            {
+            if (static::getSyncOptions('ON_REQUEST_REFRESH_LDAP_ACCOUNT_STATUS', $userObjectDb->individualSyncOptions) == true) {
                 $userObjectDb->updateAccountStatus();
             }
 
@@ -523,6 +521,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
                 foreach ($rolesAssignedToUser as $role) {
                     if(preg_match(static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions),$role->name) == true) {
                         $userInstanceAfterLogin = $userObjectDb;
+                        break;
                     }
                 }
             }
@@ -554,6 +553,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      */
     public function getAuthKey()
     {
+        //Fallback if for some reason no auth key exists
         if ($this->auth_key == null) {
             $this->generateAuthKey();
             $this->save();
@@ -620,6 +620,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         } else {
             $roles = $userObjectDb->updateGroupAssignment();
 
+            //When a group is needed for login and no roles are assigned to user, don't create one
             if (count($roles) > 0 || static::getGroupAssigmentOptions('LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX',$userObjectDb->individualGroupAssignmentOptions) == null) {
                 $userObjectDb->generateAuthKey();
                 $userObjectDb->updateAccountStatus();
@@ -802,7 +803,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         
         $ldapGroupsConverted = []; //start with empty array of groups
         
-        if ($ldapUser != null) {
+        if ($ldapUser != null) {           
             //check for nested groups?
             if (static::getGroupAssigmentOptions('SEARCH_NESTED_GROUPS',$this->individualGroupAssignmentOptions) == true) {
                 //$ldapGroups=$ldapUser->getGroups(['cn'], $recursive=true); //alternate Query, but slower
@@ -811,7 +812,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
                 if ($ldapGroups == null) {
                     $ldapGroups = [];
                 }
-
+                
                 //get cn of each group
                 foreach ($ldapGroups as $groupDn) {
                     if (is_array($groupDn) && array_key_exists('cn', $groupDn)) {
