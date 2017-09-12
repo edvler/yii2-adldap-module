@@ -157,13 +157,29 @@ you make one as default and you can call this one with Method1 or Method2
 and the second one will be called with Method3.
 */
 
+//Get the Ldap object for the user.
+//$ldapObject holds a class of type Adldap\Models\User from the Adldap project!
 // Method 1: uses the default provider given in the configuration above (array key defaultProvider)
-$user = \Yii::$app->ad->search()->findBy('sAMAccountname', $un);
+$ldapObject = \Yii::$app->ad->search()->findBy('sAMAccountname', $un);
 // Method 2: uses the default provider given in the configuration above (array key defaultProvider)
-$user = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
+$ldapObject = \Yii::$app->ad->getDefaultProvider()->search()->findBy('sAMAccountname', $un);
 // Method 3: get the provider by name (here name default is used).
-$user = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', $un);
-print_r($user); //print all informations retrieved from Active Directory
+$ldapObject = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', $un);
+
+//Examples
+//Please note that all fields from ldap are arrays!
+//Access it with ..[0] if it is a single value field.
+$givenName = $ldapObject['givenname'][0];
+$surname = $ldapObject['surname'][0];
+$displayname = $ldapObject['displayname'][0];
+$telephone = $ldapObject['telephonenumber'][0];
+
+echo 'gn: ' . $givenName . ' sn: ' . $surname . 
+ ' dispname: ' . $displayname . ' phone: ' . $telephone;
+
+//Print all possible attributes
+echo '<pre>' . print_r($ldapObject,true) . '</pre>';
+
 //...
 ```
 
@@ -178,9 +194,40 @@ You can use all features of the yii2 user integration.
 
 Some Examples:
 ```php
+//...
+//Has user a permission?
 $hasPermission = \Yii::$app->user->can('permissionDisplayDetailedAbout');
-$rolesOfUser = \Yii::$app->authManager->getRolesByUser($this->getId());
-...
+
+
+//Query informations from Active Directory. You can use in a controller, a view, everywhere in yii2!
+if (!\Yii::$app->user->isGuest) {
+    //Get the yii2 identitiy, which was set by the Yii::$app->user->login(..,..) function
+    //See model/LoginForm.php in the basic template for the login logic
+    $yii2IdentityObject = \Yii::$app->user->identity;
+    
+    $rolesOfUser = \Yii::$app->authManager->getRolesByUser($yii2IdentityObject->getId());
+    echo '<pre>' . print_r($rolesOfUser,true) . '</pre>';
+    
+    //Get the Ldap object for the user.
+    //$ldapObject holds a class of type Adldap\Models\User from the Adldap project!
+    //No performance issues, because the queryLdapUserObject function uses a cache.
+    $ldapObject = $yii2IdentityObject->queryLdapUserObject();
+    
+    //Examples
+    //Please note that all fields from ldap are arrays!
+    //Access it with ..[0] if it is a single value field.
+    $givenName = $ldapObject['givenname'][0];
+    $surname = $ldapObject['surname'][0];
+    $displayname = $ldapObject['displayname'][0];
+    $telephone = $ldapObject['telephonenumber'][0];
+    
+    echo 'gn: ' . $givenName . ' sn: ' . $surname . 
+         ' dispname: ' . $displayname . ' phone: ' . $telephone;
+    
+    //Print all possible attributes
+    echo '<pre>' . print_r($ldapObject,true) . '</pre>';
+}
+//...
 ```
 
 If you use the [Edvlerblog\Adldap2\model\UserDbLdap.php](src/model/UserDbLdap.php) class you can do things like login with a user into yii2 **without createing them** in yii2. Tasks like creating a user, assigning roles and check password against Active Directory all automatically done from [Edvlerblog\Adldap2\model\UserDbLdap.php](src/model/UserDbLdap.php) class.  
@@ -193,3 +240,21 @@ If you try to login with your new user, the user is created **automatically** in
 For the user this is transparent. The only feedback to the user is a successull login and that it is possible to use the functions which he has permissions to access.
 
 **Further Documentation with setup and examples:** [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
+
+
+
+### Unit-Tests: Not needed for normal users of the yii2-adldap-module
+There exists two Unit-Tests.
+- One for Method 1: tests/SimpleUsageTest.php
+- One for Method 2: tests/UserModelTest.php
+
+For Method 2 it's neccessary to setup the deep integration as described here: [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
+
+**Usage:**
+Use the phpunit from yii2. Its placed in vendor\bin\phpunit.
+Start in the tests in windows with
+```cmd
+cd vendor/edvlerblog/yii2-adldap-module
+..\..\bin\phpunit
+..\..\bin\phpunit --testdox
+```
