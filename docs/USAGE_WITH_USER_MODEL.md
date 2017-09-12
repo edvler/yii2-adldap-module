@@ -22,8 +22,8 @@ http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac
 
   This has to be done: (if you don't know why and what you are doing read the link above!!)  
 
-  Add the authManager class to your config/web.conf (basic template) OR common/config/main.conf (advanced template).
-  Add the authManager class to your config/console.conf (basic template) OR console/config/main.conf (advanced template).
+  - Add the authManager class to your config/web.conf (basic template) OR common/config/main.conf (advanced template).
+  - Add the authManager class to your config/console.conf (basic template) OR console/config/main.conf (advanced template).
   
 ```php
   'components' => [
@@ -165,15 +165,15 @@ If you leave the default configuration, the following is happening on login (and
 - On Login a LDAP query is issued to get the account status of the user, if the account status active the login is possible.  
 - On Login the group to role assignment is refreshed with the following settings  
   - No role has to be assingned to the user for a successfull login  
-  - For Active Directory groups starting with **yii2** and matching a existing role name in yii2, the role is assigned to the user automatically  
-  - Only roles which are starting with **yii2** are added or removed from the user, other roles would not be touched  
+  - For Active Directory groups starting with **yii2** or **app** and matching a existing role name in yii2, the role is assigned to the user automatically  
+  - Only roles which are starting with **yii2** or **app** are added or removed from the user, other roles would not be touched  
 
-For a working group to role assignment you have to create the roles in yii2! The roles would NOT be automatically created.
+For a working group to role assignment **you have to create the roles in yii2**! The roles would **NOT** be automatically created.
 
 ### Example for group configuration
 In Step 10 of Task 1 you are have already done a successfull login hopefully. But the problem is that every user in Active Directory with a valid password and active account now can login in yii2. Thats not a good solution!
 
-Before you continue read the the commets in source code starting at line 148 ([/src/model/UserDbLdap.php#L148](/src/model/UserDbLdap.php#L148)).
+Before you continue read the the commets in source code starting at line 161 "Constants starting with GROUP_ASSIGNMENT_****" ([/src/model/UserDbLdap.php#L161](/src/model/UserDbLdap.php#L161)).
 
 #### Login only possible when a role is assigned to the user
 Now add the following to your config/params.php
@@ -186,6 +186,7 @@ return [
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true, //add matches between groups and roles to the user
             'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => false,
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true, //Only remove groups matching regex REGEX_GROUP_MATCH_IN_LDAP
+            'SEARCH_NESTED_GROUPS' => false,
         ],
     //...
 ];

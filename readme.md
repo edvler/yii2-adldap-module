@@ -118,7 +118,7 @@ Add this code in your components section of the application configuration (eg. c
 			    // https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md               
 			    'config' => [
 				// Your account suffix, for example: matthias.maderer@test.lan
-				'account_suffix'        => 'test.lan',
+				'account_suffix'        => '@test.lan',
 
 				// You can use the host name or the IP address of your controllers.
 				'domain_controllers'    => ['server1.test.lan', 'server2'],
