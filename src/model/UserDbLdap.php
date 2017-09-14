@@ -340,13 +340,24 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      *                                       ],
      *       //...
      *   ]; 
-     */
+     */ 
     const EXTENSION_OPTIONS_DEFAULT = [
-            'ENABLE_YII2_PROFILING' => false //Disable profiling (yii2-debugger tab Profiling or Timeline) to analyse time needed for each function in the yii2-adldap-module
-        ];    
-
+            /*
+             * Set the name of the adldap provider used.
+             * The name is defined in you web.php or main.php
+             */
+            'adldap-providername' => '__USE_DEFAULT_PROVIDER__',
+        
+            /*
+             * Disable/enable profiling (yii2-debugger tab Profiling or Timeline), which is used
+             * to analyse time needed for each function in the yii2-adldap-module
+             */
+            'ENABLE_YII2_PROFILING' => false
+        ];
+    
     const EXTENSION_OPTIONS_DEBUG = [
-            'ENABLE_YII2_PROFILING' => true //Enable profiling (yii2-debugger tab Profiling or Timeline) to analyse time needed for each function in the yii2-adldap-module
+            'adldap-providername' => '__USE_DEFAULT_PROVIDER__',
+            'ENABLE_YII2_PROFILING' => true
         ];        
     
     /**
@@ -396,7 +407,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     public static function findIdentityByAccessToken($token, $type = null)
     {
         throw new NotSupportedException('Edvlerblog\Adldap2\model\UserDbLdap::findIdentityByAccessToken($token, $type = null) is not implemented.');
-    }    
+    }
     
     /**
      * @inheritdoc
@@ -417,8 +428,44 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         return $checkedUserObjectDB;
     }
 
+    
     /**
-     * Finds user by username
+     * Find a user with a LDAP-attribute and a value.
+     * 
+     * If you don't want to use the unsername (samaccountname) for login and
+     * for example want to use LDAP-attribute userPrincipalName for the login, call this function with
+     * \Edvlerblog\Adldap2\model\UserDbLdap::findByAttribute('userPrincipalName',$this->username);
+     * You can use any LDAP-Attribute availiable.
+     * 
+     * This function does a LDAP-Query does a query to the Active Directory to retrive the
+     * samaccountname. If exactly one result is returned, the function 
+     * static::findByUsername(QUERIED_SAM_ACCOUNT_NAME); is called.
+     * 
+     * @param string $attribute Attribut for
+     * @param string $searchValue The value, the attribute 
+     * @return Edvlerblog\Adldap2\model\UserDbLdap A User instance, if user is valid. Otherwise NULL.
+     */
+    public static function findByAttribute($attribute, $searchValue) {
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::beginProfile('Attribute: ' . $attribute . '; Value: ' . $searchValue, static::YII2_PROFILE_NAME . 'findByAttribute');
+        }
+        
+        $provider = Yii::$app->ad->getDefaultProvider();
+        $userObjectsFound = $provider->search()->select('samaccountname')->findBy($attribute, $searchValue);
+        
+        $userObjectReturn = null;
+        if(count($userObjectsFound) == 1) {
+            $userObjectReturn = static::findByUsername($userObjectsFound['samaccountname'][0]);
+        }
+
+        if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
+            Yii::endProfile('Attribute: ' . $attribute . '; Value: ' . $searchValue, static::YII2_PROFILE_NAME . 'findByAttribute');
+        }        
+        return $userObjectReturn;
+    }    
+    
+    /**
+     * Finds user by username (samaccountname)
      * 
      * Depending on the synchronisation options additional LDAP querys are done.
      * 
@@ -442,7 +489,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * queryied from LDAP and stored in database on login.
      *
      * @param string $username username of the user object
-     * @return Edvlerblog\Adldap2\model\UserDbLdap A User instance if user is valid. Otherwise NULL.
+     * @return Edvlerblog\Adldap2\model\UserDbLdap A User instance, if user is valid. Otherwise NULL.
      */
     public static function findByUsername($username) {
         if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
@@ -581,7 +628,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             Yii::beginProfile('LDAP validatePassword function', static::YII2_PROFILE_NAME . 'validatePassword');
         }
             
-        $passwordValid = $this->getAdldap2Provider()->auth()->attempt($this->username,$password);
+        $passwordValid = static::getAdldapProvider()->auth()->attempt($this->username,$password);
         
         if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
             Yii::endProfile('LDAP validatePassword function', static::YII2_PROFILE_NAME . 'validatePassword');
@@ -808,7 +855,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             if (static::getGroupAssigmentOptions('SEARCH_NESTED_GROUPS',$this->individualGroupAssignmentOptions) == true) {
                 //$ldapGroups=$ldapUser->getGroups(['cn'], $recursive=true); //alternate Query, but slower
                 //1.2.840.113556.1.4.1941 = Specical OID to resolve chains
-                $ldapGroups = $this->getAdldap2Provider()->search()->rawFilter('(member:1.2.840.113556.1.4.1941:=' . $ldapUser->getDn() . ')')->select('cn')->raw()->get();
+                $ldapGroups = static::getAdldapProvider()->search()->rawFilter('(member:1.2.840.113556.1.4.1941:=' . $ldapUser->getDn() . ')')->select('cn')->raw()->get();
                 if ($ldapGroups == null) {
                     $ldapGroups = [];
                 }
@@ -857,7 +904,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
                 throw new \yii\base\Exception('Please set username attribute before calling queryLdapUserObject() function.');
             }
 
-            $userObjectsFound = $this->getAdldap2Provider()->search()->findBy('sAMAccountname', $this->username);
+            $userObjectsFound = static::getAdldapProvider()->search()->findBy('sAMAccountname', $this->username);
 			
             if(count($userObjectsFound) != 1) {
                 $this->ldapUserObject = null;
@@ -875,6 +922,9 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
     
     /**
      * Get the Adldap2 provider name
+     * Since Version 3.0.5 use the static function getAdldapProvider()
+     * 
+     * @deprecated since version 3.0.5
      */
     private function getAdldap2Provider() {
         if(isset(Yii::$app->params['yii2-adldap-providername'])) {
@@ -884,6 +934,20 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
         }
 
         return $provider;
+    }
+
+    /**
+     * Get the Adldap2 provider name from the extension options.
+     * See constant variable EXTENSION_OPTIONS_DEFAULT at the top of the class
+     */    
+    public static function getAdldapProvider() {
+        if(static::getExtensionOptions('adldap-providername') != '__USE_DEFAULT_PROVIDER__') {
+            $provider = Yii::$app->ad->getProvider(static::getExtensionOptions('adldap-providername'));
+        } else {
+            $provider = Yii::$app->ad->getDefaultProvider();
+        }
+
+        return $provider;        
     }
 
     /**
@@ -1025,7 +1089,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             throw new \yii\base\Exception('Please set username attribute before calling getPasswordExpiryDate() function.');
         }
         
-        $result = $this->getAdldap2Provider()->
+        $result = static::getAdldapProvider()->
                   search()->
                   select(['msDS-UserPasswordExpiryTimeComputed'])->
                   where('samaccountname', '=', $this->username)->
