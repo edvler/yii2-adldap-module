@@ -450,12 +450,11 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             Yii::beginProfile('Attribute: ' . $attribute . '; Value: ' . $searchValue, static::YII2_PROFILE_NAME . 'findByAttribute');
         }
         
-        $provider = Yii::$app->ad->getDefaultProvider();
-        $userObjectsFound = $provider->search()->select('samaccountname')->findBy($attribute, $searchValue);
+        $userObjectsFound = static::getAdldapProvider()->search()->select('samaccountname')->where($attribute, '=', $searchValue)->get();
         
         $userObjectReturn = null;
         if(count($userObjectsFound) == 1) {
-            $userObjectReturn = static::findByUsername($userObjectsFound['samaccountname'][0]);
+            $userObjectReturn = static::findByUsername($userObjectsFound[0]['samaccountname'][0]);
         }
 
         if(static::getExtensionOptions('ENABLE_YII2_PROFILING') == true) {
@@ -904,12 +903,12 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
                 throw new \yii\base\Exception('Please set username attribute before calling queryLdapUserObject() function.');
             }
 
-            $userObjectsFound = static::getAdldapProvider()->search()->findBy('sAMAccountname', $this->username);
+            $userObjectsFound = static::getAdldapProvider()->search()->where('sAMAccountname', '=', $this->username)->get();
 			
             if(count($userObjectsFound) != 1) {
                 $this->ldapUserObject = null;
             } else {
-                $this->ldapUserObject = $userObjectsFound;
+                $this->ldapUserObject = $userObjectsFound[0];
             }
         }
         
