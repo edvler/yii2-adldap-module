@@ -5,7 +5,24 @@
 [![Latest Stable Version](https://poser.pugx.org/edvlerblog/yii2-adldap-module/v/stable)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![Total Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/downloads)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![Monthly Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/d/monthly)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
+[![Daily Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/d/daily)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![License](https://poser.pugx.org/phpunit/phpunit/license)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
+
+## List of content
+* **Overview**
+	* [Version](#version)
+	* [Functions of the extension](#functions-of-the-extension)
+
+* **Installation and configuration**
+	* [Installation](#installation)
+	* [Configuration](#configuration)
+
+* **Usage Methods**
+	* [Method 1](#usage-method-1-simple-usage-without-a-user-model)	
+	* [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)
+
+* **For developers**
+	* [Testing](#testing)
 
 ## Version
 
@@ -15,22 +32,7 @@ The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/
 
 **Keep this in mind if you are browsing the GitHub Repository of Adldap2**
 
-
-## Installation
-
-The preferred way to install this extension is through [Composer](http://getcomposer.org/).
-
-Either run
-```
-php composer.phar require edvlerblog/yii2-adldap-module "^3.0.0"
-```
-or add
-```
-"edvlerblog/yii2-adldap-module": "^3.0.0"
-```
-to the require section of your composer.json
-
-## Functions of the Plugin!
+## Functions of the extension
 It has been a long way since 29. Jan 2014, many functions has been added. I noticed for myself that a short overview might help everyone to see whats possible.
 
 **The simple [Method 1](#usage-method-1-simple-usage-without-a-user-model)**
@@ -54,6 +56,19 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 * [Method 2: docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
 * You can try to contanct me! If I find time, I would answer your questions!
 
+## Installation
+
+The preferred way to install this extension is through [Composer](http://getcomposer.org/).
+
+Either run
+```
+php composer.phar require edvlerblog/yii2-adldap-module "^3.0.0"
+```
+or add
+```
+"edvlerblog/yii2-adldap-module": "^3.0.0"
+```
+to the require section of your composer.json
 
 ## Configuration
 
@@ -207,7 +222,7 @@ echo '<pre>' . print_r($ldapObject,true) . '</pre>';
 //...
 ```
 
-**Further Documentation with examples:** [docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
+**Further documentation with examples:** [docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
 
 ---
 
@@ -263,11 +278,13 @@ For example imagine the following:
 If you try to login with your new user, the user is created **automatically** in yii2 and role yii2_example_group is assigned **automatically** on login.  
 For the user this is transparent. The only feedback to the user is a successull login and that it is possible to use the functions which he has permissions to access.
 
-**Further Documentation with setup and examples:** [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
+**Further documentation with setup and examples:** [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
 
 
 
-### Unit-Tests: Not needed for normal users of the yii2-adldap-module
+### Testing
+This section is only for users, that may extend the functionality.
+
 There exists two Unit-Tests.
 - One for Method 1: tests/SimpleUsageTest.php
 - One for Method 2: tests/UserModelTest.php
