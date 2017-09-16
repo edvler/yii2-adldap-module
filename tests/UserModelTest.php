@@ -6,6 +6,7 @@ use app\models\LoginForm;
 class UserModelTest extends TestCase
 {
     private $testUsername = 'yii2testuser';
+    private $testDisplayName = 'Testuser Yii2';
     private $testPassword = 'TestTest123';
     private $testGivenName = 'Yii2';
     private $testGroupName = 'yii2_example_group';
@@ -115,6 +116,20 @@ class UserModelTest extends TestCase
         $this->assertContains($this->testGroupName,$groupsPossible,'Group ' . $this->testGroupName . ' has to be found in AD.');
         $this->assertContains($this->testNestedGroupName,$groupsPossible,'Nested group ' . $this->testNestedGroupName . ' has to be found in AD.');
     }    
+    
+    public function testFindByAttribute() {
+        //A query with more than one result sould return null
+        $userObject = Edvlerblog\Adldap2\model\UserDbLdap::findByAttribute('countryCode',0);
+        $this->assertNull($userObject,'A attribute which is not suitable for unique identification should return null');       
+        
+        $userObject = Edvlerblog\Adldap2\model\UserDbLdap::findByAttribute('displayName',$this->testDisplayName);
+        $userName = $userObject->queryLdapUserObject()['attributes']['samaccountname'][0];
+        
+        $userObject = Edvlerblog\Adldap2\model\UserDbLdap::findByAttribute('samaccountname',$this->testUsername);
+        $userName = $userObject->queryLdapUserObject()['attributes']['samaccountname'][0];
+        
+        $this->assertEquals($userName,$this->testUsername,'No correct instance of the test user ' . $this->testUsername . ' returned by findByUsername');        
+    }
     
     public function testUserTestLogin() {
         $model = new LoginForm();
