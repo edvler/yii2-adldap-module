@@ -49,7 +49,7 @@ yii migrate --migrationPath=@Edvlerblog/Adldap2/migrations
 ### 5. Change the identity class in your web.conf (basic template) / main.conf (advanced template).
 ```php
 'components' => [
-    //...
+    //user entry already exists!
     'user' => [
         'identityClass' => 'Edvlerblog\Adldap2\model\UserDbLdap',
         //...
@@ -58,12 +58,28 @@ yii migrate --migrationPath=@Edvlerblog/Adldap2/migrations
 ```
 
 ### 6. In the basic template change the models/LoginForm.php to use the new identity class.
+**Version 1 with sAMAccountname attribute (login eg. mmaderer)**
 ```php
 //...
 public function getUser()
 {
     if ($this->_user === false) {
         $this->_user = \Edvlerblog\Adldap2\model\UserDbLdap::findByUsername($this->username);
+    }
+
+    return $this->_user;
+}
+//...
+```
+
+**Version 2 with another attribute (login eg. mmaderer@test.lan)**
+```php
+//...
+public function getUser()
+{
+    if ($this->_user === false) {
+        $this->_user = \Edvlerblog\Adldap2\model\UserDbLdap::findByAttribute('userPrincipalName',$this->username); //With Principal Name
+        //$this->_user =\Edvlerblog\Adldap2\model\UserDbLdap::findByAttribute('mail',$this->username); //With Mail
     }
 
     return $this->_user;
@@ -151,7 +167,7 @@ Maybe you think: Configuration, what?? But there are severel possible ways to co
 **role** = This term is used for a role in yii2. If you don't know what a role is look at http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac  
 **group** = This term is used for a group in Active Directory.  
 **user** = Means a user which exists in Active Directory.  
-**username or login** = sAMAccountName attribute in Active Directory (the username you type at the windows login)  
+**username or login** = Depending on Task 1 Number 6 the attribute you used for login.
 **assigned group** = Means that a user is member of a group in Active Directory  
 **assigned role** = Means that a user is member of a role in yii2  
 

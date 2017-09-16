@@ -30,6 +30,30 @@ or add
 ```
 to the require section of your composer.json
 
+## Functions of the Plugin!
+It has been a long way since 29. Jan 2014, many functions has been added. I noticed for myself that a short overview might help everyone to see whats possible.
+
+**The simple [Method 1](#usage-method-1-simple-usage-without-a-user-model)**
+* Query only informations from Active Directory.
+
+
+**The deep integration with [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)**
+* Sign in with a Active Directory User is possible **without doing anything in yii2**. The only action needed is creating a Active Directory User and add it to a group in Active Directory. 
+* Full support of the RBAC-concept from yii2
+* Default is to login with the sAMAccountName [Edvlerblog\Adldap2\model\UserDbLdap.php::findByUsername($username)](src/model/UserDbLdap.php). But using any attribute is possible [Edvlerblog\Adldap2\model\UserDbLdap.php::findByAttribute($attribute,$searchVAlue)](src/model/UserDbLdap.php).
+* Default is, that on login the Active Directory Account Status and the group assignments are checked. Based on the results the login is possible or not.
+* You can access every Active Directory attribute of the user. [Method 2](#Usage method 2: Deep integration into the yii2 framework with a user model)
+* This yii2-extension is highly configurable.
+
+**How to start??**
+* My suggestion is that you should start with Method 1. Start with a configration as described below and do some simple querys. If you see how it works, you can try Method 2.
+
+**If you have some questions...**
+* Please see the the separeted howto's for each Method. 
+* [Method 1: docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
+* [Method 2: docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
+* You can try to contanct me! If I find time, I would answer your questions!
+
 
 ## Configuration
 
@@ -143,9 +167,9 @@ https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
 
 ### Usage method 1: Simple usage without a user model
 If you are need to query some informations for a user from the Active Directory this would be best way.
-No additional configuration is needed and the only thing to do is to add the configuration as described above to your components section.
+No additional configuration is needed and the only thing to do is to add the [configuration](#configuration) as described above to your components section.
 
-You only call the the component as usual.
+You only use the extension in the regular Yii2 style:
 ```php
 //...
 $un = 'testuser';
