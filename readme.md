@@ -280,7 +280,7 @@ For the user this is transparent. The only feedback to the user is a successull 
 
 **Further documentation with setup and examples:** [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
 
-
+---
 
 ### Testing
 This section is only for users, that may extend the functionality.
@@ -293,7 +293,7 @@ For Method 2 it's neccessary to setup the deep integration as described here: [d
 
 **Usage:**
 Use the phpunit from yii2. Its placed in vendor\bin\phpunit.
-Start in the tests in windows with
+Start the tests in windows with
 ```cmd
 cd vendor/edvlerblog/yii2-adldap-module
 ..\..\bin\phpunit
