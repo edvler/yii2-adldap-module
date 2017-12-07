@@ -22,7 +22,7 @@
         "docs": "https://github.com/edvler/yii2-adldap-module"
     },    
     "require": {
-        "adldap2/adldap2": "^7.0.0",
+        "adldap2/adldap2": "^8.0.0",
         "yiisoft/yii2": "^2.0.0"
     },
     "autoload": {
