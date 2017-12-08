@@ -27,7 +27,7 @@
 ## Version
 
 Current Version:
-yii2-adldap-module Releases beginning with tag v3.*.* are reserved for Adldap2 v7.*
+yii2-adldap-module Releases beginning with tag v4.*.* are reserved for Adldap2 v8.*
 The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/master
 
 **Keep this in mind if you are browsing the GitHub Repository of Adldap2**
@@ -44,7 +44,7 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 * Full support of the RBAC-concept from yii2
 * Default is to login with the sAMAccountName [Edvlerblog\Adldap2\model\UserDbLdap.php::findByUsername($username)](src/model/UserDbLdap.php). But using any attribute is possible [Edvlerblog\Adldap2\model\UserDbLdap.php::findByAttribute($attribute,$searchVAlue)](src/model/UserDbLdap.php).
 * Default is, that on login the Active Directory Account Status and the group assignments are checked. Based on the results the login is possible or not.
-* You can access every Active Directory attribute of the user. [Method 2](#Usage method 2: Deep integration into the yii2 framework with a user model)
+* You can access every Active Directory attribute of the user. [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)
 * This yii2-extension is highly configurable.
 
 **How to start??**
