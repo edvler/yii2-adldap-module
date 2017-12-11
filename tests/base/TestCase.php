@@ -1,4 +1,5 @@
 <?php
+include_once('TestConfig.php');
 use yii\di\Container;
 
 /**
@@ -31,6 +32,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function mockApplication($appClass = '\yii\web\Application')
     {
+        $config = TestConfig::$ADLDAP_CONFIG;
+        
         new $appClass([
             'id' => 'testapp',
             'basePath' => __DIR__,
@@ -48,21 +51,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                     'identityClass' => 'Edvlerblog\Adldap2\model\UserDbLdap',
                     'enableAutoLogin' => true,
                 ],                
-                'ad' => [
-                    'class' => 'Edvlerblog\Adldap2\Adldap2Wrapper',
-                    'providers' => [
-                        'default' => [
-                            'autoconnect' => true,
-                            'config' => [
-                                'account_suffix' => '@test.lan',
-                                'domain_controllers' => ['srv1.test.lan', 'srv2.test.lan'],
-                                'base_dn' => 'dc=test,dc=lan',
-                                'admin_username' => 'USERNAME',
-                                'admin_password' => 'PASSWORD',
-                            ]
-                        ],
-                    ],
-                ],
+                'ad' => $config,
                 'db' => [    
                     'class' => 'yii\db\Connection',
                     'dsn' => 'mysql:host=localhost;dbname=adldap-test',

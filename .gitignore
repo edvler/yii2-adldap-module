@@ -1,3 +1,9 @@
+#################
+## Ignore TestConfig
+#################
+/tests/base/TestConfig.php
+
+
 .git
 .gitattributes
 
