@@ -1,20 +1,51 @@
 <?php
-class TestConfig {    
+class TestConfig {
     public static $ADLDAP_CONFIG = [
-        'class' => 'Edvlerblog\Adldap2\Adldap2Wrapper',
-        'providers' => [
-            'default' => [
-                'autoconnect' => true,
-                'config' => [
-                                'account_suffix' => '@test.lan',
-                                'domain_controllers' => ['srv1.test.lan', 'srv2.test.lan'],
+            'id' => 'testapp',
+            'components' => [
+                'request' => [
+                    'cookieValidationKey' => 'wefJDF8sfdsfSDefwqdxj9oq',
+                    'scriptFile' => __DIR__ . '/index.php',
+                    'scriptUrl' => '/index.php',
+                ],
+                'authManager' => [
+                    'class' => 'yii\rbac\DbManager',
+                ],
+                'user' => [
+                    'identityClass' => 'Edvlerblog\Adldap2\model\UserDbLdap',
+                    'enableAutoLogin' => true,
+                ],
+                'ad' => [
+                    'class' => 'Edvlerblog\Adldap2\Adldap2Wrapper',
+                    'providers' => [
+                        'default' => [
+                            'autoconnect' => true,
+                            'config' => [
+                                'account_suffix' => 'test.lan',
+                                'domain_controllers' => ['srv1.test.lan'],
                                 'base_dn' => 'dc=test,dc=lan',
-                                'admin_username' => 'AD_USER_WITH_RIGHTS_TO_MODIFY',
-                                'admin_password' => 'PW_OF_BIND_USER',
-                ]
-            ],
-        ],
-    ];
+                                'admin_username' => 'yii2binduser',
+                                'admin_password' => 'PWD_GOES_HERE',
+                                // See docs/SSL_TLS_AD.md
+                                // SSL and TLS needed to create a user with password
+                                'port' => 636,
+                                'use_ssl' => true,
+                                'use_tls' => true,
+                            ]
+                        ],
+                    ],
+                ],
+                'db' => [
+                    'class' => 'yii\db\Connection',
+                    'dsn' => 'mysql:host=localhost;dbname=adldap-test',
+                    'username' => 'root',
+                    'password' => 'PWD_GOES_HERE',
+                    'charset' => 'utf8'
+                ],
+            ]
+        ];
 
-    public static $TEST_USER_PASSWORD = 'PW_OF_TEST_USER';    
+    // variables are used by tests suites
+    public static $TEST_USER_PASSWORD = 'PWD_GOES_HERE';
+    public static $TEST_USER_PRINCIPAL_NAME = 'snoopstein@test.lan';
 }
