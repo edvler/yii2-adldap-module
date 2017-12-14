@@ -1,5 +1,11 @@
 # yii2-adldap-module
 
+* Query Active Directory users, groups, ...
+* RBAC user model
+* Create/Update/Edit Active Directory objects
+* Extensive test suite
+
+
 [Yii2](http://www.yiiframework.com) extension for Adldap2 (https://packagist.org/packages/adldap2/adldap2)
 
 [![Latest Stable Version](https://poser.pugx.org/edvlerblog/yii2-adldap-module/v/stable)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
@@ -18,8 +24,9 @@
 	* [Configuration](#configuration)
 
 * **Usage Methods**
-	* [Method 1](#usage-method-1-simple-usage-without-a-user-model)	
-	* [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)
+	* [Method 1](#usage-method-1-simple-usage-without-a-user-model) Query informations
+	* [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model) RBAC user model
+	* [Method 3](#usage-method-3-create-and-modify-active-directory-objects) Create and modify objects
 
 * **For developers**
 	* [Testing](#testing)
@@ -47,6 +54,9 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 * You can access every Active Directory attribute of the user. [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)
 * This yii2-extension is highly configurable.
 
+**Create or modify Active Directory objects with [Method 3](#usage-method-3-create-and-modify-active-directory-objects)**
+* Thanks to Adldap2, it's easy to create or modify objects.
+
 **How to start??**
 * My suggestion is that you should start with Method 1. Start with a configration as described below and do some simple querys. If you see how it works, you can try Method 2.
 
@@ -54,7 +64,8 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 * Please see the the separeted howto's for each Method. 
 * [Method 1: docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
 * [Method 2: docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
-* You can try to contanct me! If I find time, I would answer your questions!
+* [Method 3: docs/CREATE_MODIFY_OBJECTS.md](docs/CREATE_MODIFY_OBJECTS.md)
+* Open a issue or a pull request.
 
 ## Installation
 
@@ -134,12 +145,18 @@ Add this code in your components section of the application configuration (eg. c
 				// does not need to be an actual admin account.
 				'admin_username'        => 'username_ldap_access',
 				'admin_password'        => 'password_ldap_access!',
+
+                                // To enable SSL/TLS read the docs/SSL_TLS_AD.md and uncomment
+                                // the variables below
+                                //'port' => 636,
+                                //'use_ssl' => true,
+                                //'use_tls' => true,                                
 			    ]
 			],
 
 			/*
 			 * Another Provider
-			 * You don't have to another provider if you don't need it. It's just an example.
+			 * You don't have to define another provider if you don't need it. It's just an example.
 			 *
 			 * You can get the provider with:
 			 * or with $provider = \Yii::$app->ad->getProvider('another_provider');
@@ -169,6 +186,12 @@ Add this code in your components section of the application configuration (eg. c
 				// does not need to be an actual admin account.
 				'admin_username'        => 'username_ldap_access',
 				'admin_password'        => 'password_ldap_access',
+
+                                // To enable SSL/TLS read the docs/SSL_TLS_AD.md and uncomment
+                                // the variables below
+                                //'port' => 636,
+                                //'use_ssl' => true,
+                                //'use_tls' => true, 
 			    ] // close config
 			], // close provider
 	    ], // close providers array
@@ -219,7 +242,7 @@ echo 'gn: ' . $givenName . ' sn: ' . $surname .
 //Print all possible attributes
 echo '<pre>' . print_r($ldapObject,true) . '</pre>';
 
-//...
+//More ways to get attributes: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
 ```
 
 **Further documentation with examples:** [docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
@@ -265,6 +288,8 @@ if (!\Yii::$app->user->isGuest) {
     
     //Print all possible attributes
     echo '<pre>' . print_r($ldapObject,true) . '</pre>';
+
+    //More ways to get attributes: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
 }
 //...
 ```
@@ -282,20 +307,53 @@ For the user this is transparent. The only feedback to the user is a successull 
 
 ---
 
-### Testing
-This section is only for users, that may extend the functionality.
+### Usage method 3: Create and modify active directory objects
+Adldap2 offers the option to create or modify Active Directory objects.
+Please see [https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md] for documentation.
 
-There exists two Unit-Tests.
-- One for Method 1: tests/SimpleUsageTest.php
-- One for Method 2: tests/UserModelTest.php
+**Prequesits**
+To create or modify attributes of a Active Directory object use a bind user in your [configuration](#configuration) with rights to change the attributes of the objects (a dirty but **very discourraged** way is to add the bind user to the domain-admins group)! 
+
+**One example:** Modify the displayname of a user
+
+```php
+// Step 1: Query the ldap object (via method 1 or method 2) 
+$un = 'testuser';
+$ldapObject = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', $un);
+
+// Step 2: Update the attribute
+// Further documentation: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#setting-attributes
+$ldapObject->setDisplayName('Fancy New Displayname');
+
+// Step 3: Save an check return value
+if ($ldapObject->save()) {
+    echo "// Displayname successfully updated.";
+} else {
+    echo "// There was an issue updating this user.";
+} 
+```
+
+**Further documentation:** [docs/CREATE_MODIFY_OBJECTS.md](docs/CREATE_MODIFY_OBJECTS.md)
+
+---
+
+### Testing
+This section is only for developers, that may extend the functionality.
+
+These test classes exists:
+* Method 1: tests/SimpleUsageTest.php
+* Method 2: tests/UserModelTest.php
+* Method 3: tests/ModifyCreateTest.php
 
 For Method 2 it's neccessary to setup the deep integration as described here: [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
 
 **Usage:**
-Use the phpunit from yii2. Its placed in vendor\bin\phpunit.
-Start the tests in windows with
+* Use the phpunit from yii2. Its placed in vendor\bin\phpunit.
+* Create the config class tests\base\TestConfig.php from the template tests\base\TestConfigSample.php.
+
+Start the tests in windows with:
 ```cmd
 cd vendor/edvlerblog/yii2-adldap-module
-..\..\bin\phpunit
+..\..\bin\phpunit -v --debug
 ..\..\bin\phpunit --testdox
 ```
