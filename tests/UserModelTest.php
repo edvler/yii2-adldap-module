@@ -177,6 +177,6 @@ class UserModelTest extends TestCase
     }
     
     public function testCleanup() {
-        //$this->checkAndDeleteUser();
+        $this->checkAndDeleteUser();
     }    
 }

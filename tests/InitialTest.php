@@ -20,7 +20,6 @@ class InitialTest extends TestCase
         $user->setFirstName(TestVariables::$TEST_USER_GIVEN_NAME);
         $user->setLastName(TestVariables::$TEST_USER_SURNAME);
         $user->setTitle(TestVariables::$TEST_USER_TITLE);
-        $user->setDepartment(TestVariables::$TEST_USER_DEPARTMENT);
         $user->setTelephoneNumber(TestVariables::$TEST_USER_PHONE);
         $user->setPassword(TestConfig::$TEST_USER_PASSWORD); //Needs ssl/tls
         $user->setStreetAddress(TestVariables::$TEST_USER_STREET);
