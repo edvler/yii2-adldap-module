@@ -136,7 +136,6 @@ class InitialTest extends TestCase
     /**
      * Documentation
      * https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#setting-attributes
-     * https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
      */
     public function testUpdateDisplayName() {
         $userObject = \Yii::$app->ad->search()->findBy('sAMAccountname', TestVariables::$TEST_USER_ACCOUNT_NAME);
@@ -155,7 +154,6 @@ class InitialTest extends TestCase
     /**
      * Documentation
      * https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#setting-attributes
-     * https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
      */    
     public function testMassUpdate() {
         $userObject = \Yii::$app->ad->search()->findBy('sAMAccountname', TestVariables::$TEST_USER_ACCOUNT_NAME);
