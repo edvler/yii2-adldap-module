@@ -25,9 +25,8 @@ If you want to help you can do the following:
 * Extend or correct the docs and create a Pull-Request
 * Fix or extend the plugins source code and create a Pull-Request
 * Add further tests and create a Pull-Request
-* Open a issue if for questions or problems
+* Open a issue for questions or problems
 
-More and more questions arriving me from businesses.
 
 ## List of content
 * **Overview**
