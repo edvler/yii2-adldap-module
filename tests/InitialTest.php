@@ -8,7 +8,7 @@ class InitialTest extends TestCase
     }
     
     public function testCreateUser() {
-        
+        // https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#saving
         // create user
         $user = \Yii::$app->ad->make()->user([
             'cn' => TestVariables::$TEST_USER_CN,
@@ -52,6 +52,7 @@ class InitialTest extends TestCase
 
         // set account control and set password!
         // set account control only on a user, which already exists
+        // https://github.com/Adldap2/Adldap2/blob/master/src/Models/Attributes/AccountControl.php
         $ac = new Adldap\Models\Attributes\AccountControl();
         $ac->accountIsNormal();        
         $userObject->setUserAccountControl($ac);
