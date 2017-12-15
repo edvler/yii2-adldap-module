@@ -1,4 +1,4 @@
-# yii2-adldap-module
+# yii2-adldap-module v4 (wrapper for Adldap v8)
 
 * Query Active Directory users, groups, ...
 * RBAC user model
@@ -13,6 +13,21 @@
 [![Monthly Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/d/monthly)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![Daily Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/d/daily)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![License](https://poser.pugx.org/phpunit/phpunit/license)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
+
+## Howto contribute or support the extension
+As you as delevoper know, it's **not only source code** that matters. The best code is worthless if no **documentation** exists. 
+My focus is to provide a comprehensive documentation for this extension. This should help **YOU** to do your task fast and without strugle.
+Updating this extension take days starting with programming, writing the docs and write test for the code and the docs.
+
+**I'am glad to see that many persons use the plugin!**
+
+If you want to help you can do the following:
+* Extend or correct the docs and create a Pull-Request
+* Fix or extend the plugins source code and create a Pull-Request
+* Add further tests and create a Pull-Request
+* Open a issue if for questions or problems
+
+More and more questions arriving me from businesses.
 
 ## List of content
 * **Overview**
@@ -45,7 +60,6 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 **The simple [Method 1](#usage-method-1-simple-usage-without-a-user-model)**
 * Query only informations from Active Directory.
 
-
 **The deep integration with [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)**
 * Sign in with a Active Directory User is possible **without doing anything in yii2**. The only action needed is creating a Active Directory User and add it to a group in Active Directory. 
 * Full support of the RBAC-concept from yii2
@@ -54,8 +68,8 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 * You can access every Active Directory attribute of the user. [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)
 * This yii2-extension is highly configurable.
 
-**Create or modify Active Directory objects with [Method 3](#usage-method-3-create-and-modify-active-directory-objects)**
-* Thanks to Adldap2, it's easy to create or modify objects.
+**Create, modify or delete Active Directory objects with [Method 3: docs/CREATE_MODIFY_DELETE_OBJECTS.md](docs/CREATE_MODIFY_DELETE_OBJECTS.md)**
+* Thanks to Adldap2, it's easy to create, modify or delete objects.
 
 **How to start??**
 * My suggestion is that you should start with Method 1. Start with a configration as described below and do some simple querys. If you see how it works, you can try Method 2.
@@ -64,7 +78,7 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 * Please see the the separeted howto's for each Method. 
 * [Method 1: docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
 * [Method 2: docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
-* [Method 3: docs/CREATE_MODIFY_OBJECTS.md](docs/CREATE_MODIFY_OBJECTS.md)
+* [Method 3: docs/CREATE_MODIFY_DELETE_OBJECTS.md](docs/CREATE_MODIFY_DELETE_OBJECTS.md)
 * Open a issue or a pull request.
 
 ## Installation
@@ -73,11 +87,11 @@ The preferred way to install this extension is through [Composer](http://getcomp
 
 Either run
 ```
-php composer.phar require edvlerblog/yii2-adldap-module "^3.0.0"
+php composer.phar require edvlerblog/yii2-adldap-module "^4.0.0"
 ```
 or add
 ```
-"edvlerblog/yii2-adldap-module": "^3.0.0"
+"edvlerblog/yii2-adldap-module": "^4.0.0"
 ```
 to the require section of your composer.json
 
@@ -106,7 +120,7 @@ Add this code in your components section of the application configuration (eg. c
 	     // 'defaultProvider' => 'another_provider',
 
 	    /*
-	     * Adlapd2 v7.X.X can handle multiple providers to different Active Directory sources.
+	     * Adlapd2 can handle multiple providers to different Active Directory sources.
 	     * Each provider has it's own config.
 	     *
 	     * In the providers section it's possible to define multiple providers as listed as example below.
@@ -201,7 +215,7 @@ Add this code in your components section of the application configuration (eg. c
 See official documentation for all config options.  
 https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
 
-## Usage - Method 1 and/or Method 2
+## Usage - Method 1, Method 2 and Method 3
 
 ### Usage method 1: Simple usage without a user model
 If you are need to query some informations for a user from the Active Directory this would be best way.
@@ -242,7 +256,8 @@ echo 'gn: ' . $givenName . ' sn: ' . $surname .
 //Print all possible attributes
 echo '<pre>' . print_r($ldapObject,true) . '</pre>';
 
-//More ways to get attributes: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
+// More ways to get attributes: 
+// https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
 ```
 
 **Further documentation with examples:** [docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
@@ -289,7 +304,8 @@ if (!\Yii::$app->user->isGuest) {
     //Print all possible attributes
     echo '<pre>' . print_r($ldapObject,true) . '</pre>';
 
-    //More ways to get attributes: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
+    // More ways to get attributes:
+    // https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
 }
 //...
 ```
@@ -307,22 +323,24 @@ For the user this is transparent. The only feedback to the user is a successull 
 
 ---
 
-### Usage method 3: Create and modify active directory objects
-Adldap2 offers the option to create or modify Active Directory objects.
-Please see [https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md] for documentation.
+### Usage method 3: Create, modify and delete Active Directory objects
+Adldap2 offers the option to create, modify and delete Active Directory objects.
+See https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md for documentation.
 
 **Prequesits**
-To create or modify attributes of a Active Directory object use a bind user in your [configuration](#configuration) with rights to change the attributes of the objects (a dirty but **very discourraged** way is to add the bind user to the domain-admins group)! 
+* To create or modify attributes of a Active Directory object use a bind user in your [configuration](#configuration) with rights to change the attributes of the objects (a dirty but **very discourraged** way is to add the bind user to the domain-admins group)!
+* For some actions like change password you need a SSL/TLS connection. See [configuration](#configuration) for further hints.
 
 **One example:** Modify the displayname of a user
 
 ```php
+// https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#updating-attributes
 // Step 1: Query the ldap object (via method 1 or method 2) 
 $un = 'testuser';
 $ldapObject = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', $un);
 
 // Step 2: Update the attribute
-// Further documentation: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#setting-attributes
+// https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#setting-attributes
 $ldapObject->setDisplayName('Fancy New Displayname');
 
 // Step 3: Save an check return value
@@ -333,7 +351,7 @@ if ($ldapObject->save()) {
 } 
 ```
 
-**Further documentation:** [docs/CREATE_MODIFY_OBJECTS.md](docs/CREATE_MODIFY_OBJECTS.md)
+**Further documentation:** [docs/CREATE_MODIFY_DELETE_OBJECTS.md](docs/CREATE_MODIFY_DELETE_OBJECTS.md)
 
 ---
 
@@ -341,11 +359,10 @@ if ($ldapObject->save()) {
 This section is only for developers, that may extend the functionality.
 
 These test classes exists:
-* Method 1: tests/SimpleUsageTest.php
-* Method 2: tests/UserModelTest.php
-* Method 3: tests/ModifyCreateTest.php
+* tests/InitialTest.php: Delete, create and modify users and groups and check results
+* tests/UserModelTest.php: Test the [src/model/UserDbLdap.php](src/model/UserDbLdap.php)
 
-For Method 2 it's neccessary to setup the deep integration as described here: [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
+For the UserModelTest test it's neccessary to setup the deep integration as described here: [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
 
 **Usage:**
 * Use the phpunit from yii2. Its placed in vendor\bin\phpunit.
@@ -353,6 +370,9 @@ For Method 2 it's neccessary to setup the deep integration as described here: [d
 
 Start the tests in windows with:
 ```cmd
+// WARNING!! NOT RUN ON PRODUCTION!!
+// TABLES ARE TRUNCATED AND ACTIVE DIRECTORY IS MODIFIED!
+// TAKE A LOOK AT THE SOURCE CODE BEFORE RUNNING THE TESTS.
 cd vendor/edvlerblog/yii2-adldap-module
 ..\..\bin\phpunit -v --debug
 ..\..\bin\phpunit --testdox

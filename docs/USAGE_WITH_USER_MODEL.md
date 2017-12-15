@@ -36,6 +36,7 @@ http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#rbac
 
   Execute the rbac migrations in a shell or cmd
 ```
+cd C:\xampp\htdocs\basic
 yii migrate --migrationPath=@yii/rbac/migrations
 ```
 
@@ -43,6 +44,7 @@ yii migrate --migrationPath=@yii/rbac/migrations
 
 ### 4. Apply UserDbLdap Migrations. Execute the following command on your shell or cmd
 ```
+cd C:\xampp\htdocs\basic
 yii migrate --migrationPath=@Edvlerblog/Adldap2/migrations
 ```
 

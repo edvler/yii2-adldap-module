@@ -5,13 +5,14 @@ yii2-adldap-module is only a wrapper class. The examples below are all taken fro
 
 You can find the documentation here: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md
 
-**Don't forget, to set passwords, you need a SSL/TLS connection!**
-See [yii2-adldap-module#configuration](yii2-adldap-module#configuration) ssl/tls parameters.
+**Don't forget, to set passwords on Active Directory users, you need a SSL/TLS connection!**
+See [/readme.md#configuration](/readme.md#configuration) ssl/tls parameters.
 
-## Some examples (taken from testsuite initial tests [tests/InitialTest.php](tests/InitialTest.php)
+## Some examples (taken from testsuite [/tests/InitialTest.php](/tests/InitialTest.php))
 
 ### Create user
-```php       
+```php
+        // https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#saving
         // create user
         $user = \Yii::$app->ad->make()->user([
             'cn' => 'Snoop Einstein',
@@ -49,6 +50,7 @@ See [yii2-adldap-module#configuration](yii2-adldap-module#configuration) ssl/tls
         } 
 
         // Enable account (has to be an extra step!)
+        // https://github.com/Adldap2/Adldap2/blob/master/src/Models/Attributes/AccountControl.php
         $ac = new Adldap\Models\Attributes\AccountControl();
         $ac->accountIsNormal();        
         $user->setUserAccountControl($ac);
@@ -72,7 +74,8 @@ See [yii2-adldap-module#configuration](yii2-adldap-module#configuration) ssl/tls
 $ldapObject = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', 'snoopstein');
 
 // Step 2: Update the attribute
-// Further documentation: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#setting-attributes
+// Further documentation: 
+// https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#setting-attributes
 $ldapObject->setDisplayName('Fancy New Displayname');
 // .... modify other attributes ....
 
@@ -86,6 +89,7 @@ if ($ldapObject->save()) {
 
 ### Delete user
 ```php       
+        // https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#deleting
         // check if account exists
         $userObject = \Yii::$app->ad->search()->findBy('sAMAccountname', 'snoopstein');
         if($userObject != null && $userObject->exists) {
@@ -100,6 +104,7 @@ if ($ldapObject->save()) {
 
 ### Create a group
 ```php
+        // https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#available-make-methods
         // create the group
         $group1 = \Yii::$app->ad->make()->group([
             'cn' => 'Cat and Dog',
@@ -120,6 +125,7 @@ if ($ldapObject->save()) {
 
 ### Add user to group
 ```php
+        // https://github.com/Adldap2/Adldap2/blob/master/docs/models/traits/has-member-of.md#adding-a-group
         // find user
         $userObject = \Yii::$app->ad->search()->findBy('sAMAccountname', 'snoopstein');
         
@@ -138,14 +144,15 @@ if ($ldapObject->save()) {
 
 ### Delete group
 ```php
+        // https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#deleting
         // check if group exists
         $groupObject = \Yii::$app->ad->search()->findBy('cn', 'Cat and Dog');
         if($groupObject != null && $groupObject->exists) {
             // delete if exists
             if ($groupObject->delete()) {
-                echo "// added successfully.";
+                echo "// deleted successfully.";
             } else {
-                echo "// There was an issue adding this group.";
+                echo "// There was an issue deleted this group.";
             }
         }
 ```
