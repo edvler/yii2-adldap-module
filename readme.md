@@ -1,11 +1,4 @@
 # yii2-adldap-module v4 (wrapper for Adldap v8)
-
-* Query Active Directory users, groups, ...
-* RBAC user model
-* Create/Update/Edit Active Directory objects
-* Extensive test suite
-
-
 [Yii2](http://www.yiiframework.com) extension for Adldap2 (https://packagist.org/packages/adldap2/adldap2)
 
 [![Latest Stable Version](https://poser.pugx.org/edvlerblog/yii2-adldap-module/v/stable)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
@@ -13,6 +6,11 @@
 [![Monthly Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/d/monthly)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![Daily Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/d/daily)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![License](https://poser.pugx.org/phpunit/phpunit/license)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
+
+* Query Active Directory users, groups, ...
+* RBAC user model
+* Create/Update/Edit Active Directory objects
+* Extensive test suite
 
 ## Howto contribute or support the extension
 As you as delevoper know, it's **not only source code** that matters. The best code is worthless if no **documentation** exists. 
@@ -27,6 +25,9 @@ If you want to help you can do the following:
 * Add further tests and create a Pull-Request
 * Open a issue for questions or problems
 
+**If this project help you reduce time to develop, you can spend me a cup of coffee :)**
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WVHQ2539QZGRU)
 
 ## List of content
 * **Overview**
