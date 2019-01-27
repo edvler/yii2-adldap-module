@@ -1,4 +1,4 @@
-# yii2-adldap-module v4 (wrapper for Adldap v8)
+# yii2-adldap-module v5 (wrapper for Adldap v9)
 [Yii2](http://www.yiiframework.com) extension for Adldap2 (https://packagist.org/packages/adldap2/adldap2)
 
 [![Latest Stable Version](https://poser.pugx.org/edvlerblog/yii2-adldap-module/v/stable)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
@@ -49,7 +49,7 @@ If you want to help you can do the following:
 ## Version
 
 Current Version:
-yii2-adldap-module Releases beginning with tag v4.*.* are reserved for Adldap2 v8.*
+yii2-adldap-module Releases beginning with tag v5.*.* are reserved for Adldap2 v9.*
 The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/master
 
 **Keep this in mind if you are browsing the GitHub Repository of Adldap2**
@@ -87,11 +87,11 @@ The preferred way to install this extension is through [Composer](http://getcomp
 
 Either run
 ```
-php composer.phar require edvlerblog/yii2-adldap-module "^4.0.0"
+php composer.phar require edvlerblog/yii2-adldap-module "^5.0.0"
 ```
 or add
 ```
-"edvlerblog/yii2-adldap-module": "^4.0.0"
+"edvlerblog/yii2-adldap-module": "^5.0.0"
 ```
 to the require section of your composer.json
 
