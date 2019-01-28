@@ -3,8 +3,9 @@ include_once ('base\TestVariables.php');
 
 class InitialTest extends TestCase
 {
+
     public function testCleanup() {
-        $this->checkAndDeleteUser();
+        $this->assertTrue($this->checkAndDeleteUser());
     }
     
     public function testCreateUser() {
@@ -120,7 +121,7 @@ class InitialTest extends TestCase
 
     public function testUserObject() {
         // search for non existing user
-        $this->assertNull(\Yii::$app->ad->search()->findBy('sAMAccountname', TestVariables::$TEST_NOT_EXISTING_USERNAME),'User Object is NOT NULL'); //Try to get NOT existing user.        
+        $this->assertFalse(\Yii::$app->ad->search()->findBy('sAMAccountname', TestVariables::$TEST_NOT_EXISTING_USERNAME),'User Object is NOT NULL'); //Try to get NOT existing user.        
         
         $userObject = \Yii::$app->ad->search()->findBy('sAMAccountname', TestVariables::$TEST_USER_ACCOUNT_NAME);
         $this->assertNotNull($userObject,'User Object is NULL'); //User not found?

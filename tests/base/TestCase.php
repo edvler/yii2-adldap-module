@@ -7,7 +7,7 @@ use yii\di\Container;
 /**
  * This is the base class for all yii framework unit tests.
  */
-abstract class TestCase extends \PHPUnit_Framework_TestCase {
+abstract class TestCase extends PHPUnit\Framework\TestCase {
 
     protected function setUp() {
         parent::setUp();
@@ -51,25 +51,35 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
     }
     
     public function checkAndDeleteUser() {
+        $allokay = true;
+        
         // check if account exists
         $userObject = \Yii::$app->ad->search()->findBy('sAMAccountname', TestVariables::$TEST_USER_ACCOUNT_NAME);
         if($userObject != null && $userObject->exists) {
             // delete if exists
-            $this->assertTrue($userObject->delete());
+            if ($userObject->delete() == false) {
+                $allokay = false;
+            }
         }
         
         // check if group exists
         $groupObject = \Yii::$app->ad->search()->findBy('cn', TestVariables::$TEST_GROUP_NAME);
         if($groupObject != null && $groupObject->exists) {
             // delete if exists
-            $this->assertTrue($groupObject->delete());
+            if ($groupObject->delete() == false) {
+                $allokay = false;
+            }
         }
 
         // check if nested group exists
         $nestedgroupObject = \Yii::$app->ad->search()->findBy('cn', TestVariables::$TEST_NESTED_GROUP_NAME);
         if($nestedgroupObject != null && $nestedgroupObject->exists) {
             // delete if exists
-            $this->assertTrue($nestedgroupObject->delete());
-        }           
+            if ($nestedgroupObject->delete() == false) {
+                $allokay = false;
+            }
+        }
+        
+        return $allokay;
     }      
 }

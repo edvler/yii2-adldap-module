@@ -22,10 +22,10 @@ class TestConfig {
                             'autoconnect' => true,
                             'config' => [
                                 'account_suffix' => 'test.lan',
-                                'domain_controllers' => ['srv1.test.lan'],
+                                'hosts' => ['srv1.test.lan'],
                                 'base_dn' => 'dc=test,dc=lan',
-                                'admin_username' => 'yii2binduser',
-                                'admin_password' => 'PWD_GOES_HERE',
+                                'username' => 'yii2binduser@test.lan',
+                                'password' => 'PWD_GOES_HERE',
                                 // See docs/SSL_TLS_AD.md
                                 // SSL and TLS needed to create a user with password
                                 'port' => 636,

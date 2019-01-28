@@ -3,7 +3,7 @@
 // ensure we get report on all possible php errors
 error_reporting(-1);
 
-define('YII_ENABLE_ERROR_HANDLER', false);
+define('YII_ENABLE_ERROR_HANDLER', true);
 define('YII_DEBUG', true);
 
 $_SERVER['SCRIPT_NAME'] = '/' . __DIR__;

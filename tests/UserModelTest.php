@@ -148,6 +148,9 @@ class UserModelTest extends TestCase
         $this->assertEquals($userName,TestVariables::$TEST_USER_ACCOUNT_NAME,'No correct instance of the test user ' . TestVariables::$TEST_USER_ACCOUNT_NAME . ' returned by findByUsername');        
     }
     
+    /**
+     * @runInSeparateProcess
+     */    
     public function testUserTestLogin() {
         $model = new LoginForm();
         
@@ -177,6 +180,6 @@ class UserModelTest extends TestCase
     }
     
     public function testCleanup() {
-        $this->checkAndDeleteUser();
-    }    
+        $this->assertTrue($this->checkAndDeleteUser());
+    }  
 }
