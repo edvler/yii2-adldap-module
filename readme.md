@@ -12,6 +12,27 @@
 * Create/Update/Edit Active Directory objects
 * Extensive test suite
 
+## Please read this if you upgrade from older versions to v5
+Adldap2 changed some config keys in version 9. If you upgrade from a previous version you have to change your config/web.conf (basic template) OR common/config/main.conf (advanced template) and
+your config/console.conf (basic template) OR console/config/main.conf (advanced template).
+
+For all Adldap 2 options see https://adldap2.github.io/Adldap2/#/setup?id=array-example-with-all-options.
+
+The mandatory changed options are:
+* admin_username: renamed to username
+* admin_passwort: renamed to passwort
+* domain_controllers: renamed to hosts
+
+If you configure your username append your domain with **@domain.name**. Otherwise you maybe get
+**Adldap\Auth\Bindexception: Invalid Credentials**.
+
+```php
+...
+ 'username' => 'username_ldap_access@example.lan',
+...
+```
+See [Configuration](#configuration).
+
 ## Howto contribute or support the extension
 As you as delevoper know, it's **not only source code** that matters. The best code is worthless if no **documentation** exists. 
 My focus is to provide a comprehensive documentation for this extension. This should help **YOU** to do your task fast and without strugle.
@@ -63,7 +84,7 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 **The deep integration with [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)**
 * Sign in with a Active Directory User is possible **without doing anything in yii2**. The only action needed is creating a Active Directory User and add it to a group in Active Directory. 
 * Full support of the RBAC-concept from yii2
-* Default is to login with the sAMAccountName [Edvlerblog\Adldap2\model\UserDbLdap.php::findByUsername($username)](src/model/UserDbLdap.php). But using any attribute is possible [Edvlerblog\Adldap2\model\UserDbLdap.php::findByAttribute($attribute,$searchVAlue)](src/model/UserDbLdap.php).
+* Default is to login with the sAMAccountName [Edvlerblog\Adldap2\model\UserDbLdap.php::findByUsername($username)](src/model/UserDbLdap.php). But using any attribute is possible [Edvlerblog\Adldap2\model\UserDbLdap.php::findByAttribute($attribute,$searchValue)](src/model/UserDbLdap.php).
 * Default is, that on login the Active Directory Account Status and the group assignments are checked. Based on the results the login is possible or not.
 * You can access every Active Directory attribute of the user. [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)
 * This yii2-extension is highly configurable.
@@ -150,15 +171,15 @@ Add this code in your components section of the application configuration (eg. c
 				'account_suffix'        => '@example.lan',
 
 				// You can use the host name or the IP address of your controllers.
-				'domain_controllers'    => ['server01.example.lan', 'server02.example.lan'],
+				'hosts'    => ['server01.example.lan', 'server02.example.lan'],
 
 				// Your base DN. This is usually your account suffix.
 				'base_dn'               => 'dc=example,dc=lan',
 
 				// The account to use for querying / modifying users. This
 				// does not need to be an actual admin account.
-				'admin_username'        => 'username_ldap_access',
-				'admin_password'        => 'password_ldap_access!',
+				'username'        => 'username_ldap_access@example.lan',
+				'password'        => 'password_ldap_access!',
 
                                 // To enable SSL/TLS read the docs/SSL_TLS_AD.md and uncomment
                                 // the variables below
@@ -191,15 +212,15 @@ Add this code in your components section of the application configuration (eg. c
 				'account_suffix'        => '@test.lan',
 
 				// You can use the host name or the IP address of your controllers.
-				'domain_controllers'    => ['server1.test.lan', 'server2'],
+				'hosts'    => ['server1.test.lan', 'server2'],
 
 				// Your base DN. This is usually your account suffix.
 				'base_dn'               => 'dc=test,dc=lan',
 
 				// The account to use for querying / modifying users. This
 				// does not need to be an actual admin account.
-				'admin_username'        => 'username_ldap_access',
-				'admin_password'        => 'password_ldap_access',
+				'username'        => 'username_ldap_access@test.lan',
+				'password'        => 'password_ldap_access',
 
                                 // To enable SSL/TLS read the docs/SSL_TLS_AD.md and uncomment
                                 // the variables below
