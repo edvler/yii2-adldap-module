@@ -437,7 +437,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
      * \Edvlerblog\Adldap2\model\UserDbLdap::findByAttribute('userPrincipalName',$this->username);
      * You can use any LDAP-Attribute availiable.
      * 
-     * This function does a LDAP-Query does a query to the Active Directory to retrive the
+     * This function does a LDAP-Query to the Active Directory to retrive the
      * samaccountname. If exactly one result is returned, the function 
      * static::findByUsername(QUERIED_SAM_ACCOUNT_NAME); is called.
      * 
@@ -904,7 +904,7 @@ class UserDbLdap extends ActiveRecord implements IdentityInterface
             }
 
             $userObjectsFound = static::getAdldapProvider()->search()->where('sAMAccountname', '=', $this->username)->get();
-			
+
             if(count($userObjectsFound) != 1) {
                 $this->ldapUserObject = null;
             } else {
