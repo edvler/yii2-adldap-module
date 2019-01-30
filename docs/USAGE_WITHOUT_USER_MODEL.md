@@ -65,7 +65,7 @@ echo '</pre>';
 ## Examples
 
 ### Authenticate user  
-https://github.com/Adldap2/Adldap2/blob/master/docs/authenticating.md
+https://adldap2.github.io/Adldap2/#/setup?id=authenticating
 ```php
 $un = 'testuser';
 $pw = 'VeryStrongPw';
@@ -79,7 +79,7 @@ if(\Yii::$app->ad->auth()->attempt($un,$pw)) {
 ### Find records
 #### With findBy() function
 Finding a specific record by a specific attribute. We're looking for a record with the 'samaccountname' of 'testuser'. This euqals to the username in Active Directory.  
-https://github.com/Adldap2/Adldap2/blob/master/docs/query-builder.md
+https://adldap2.github.io/Adldap2/#/searching?id=finding-a-record-by-a-specific-attribute
 ```php
 $un = 'testuser';
 $user = \Yii::$app->ad->search()->findBy('sAMAccountname', $un);
@@ -103,7 +103,7 @@ echo '</pre>';
 
 ### Group Membership  
 See sourcecode function getGroups() or inGroup().  
-https://github.com/Adldap2/Adldap2/blob/master/src/Models/Traits/HasMemberOf.php
+https://github.com/Adldap2/Adldap2/blob/master/src/Models/Concerns/HasMemberOf.php
 
 #### Check if user is in group with getGroups() function.
 ```php

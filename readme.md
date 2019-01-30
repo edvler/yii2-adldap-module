@@ -7,13 +7,13 @@
 [![Daily Downloads](https://poser.pugx.org/edvlerblog/yii2-adldap-module/d/daily)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 [![License](https://poser.pugx.org/phpunit/phpunit/license)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
 
-* Query Active Directory users, groups, ...
+* Query Active Directory users, groups, computers, organizational units, ...
 * RBAC user model
 * Create/Update/Edit Active Directory objects
 * Extensive test suite
 
 ## Please read this if you upgrade from older versions to v5
-Adldap2 changed some config keys in version 9. If you upgrade from a previous version you have to change your config/web.conf (basic template) OR common/config/main.conf (advanced template) and
+Adldap2 changed option keys in version 9. If you upgrade from a previous version you have to change your config/web.conf (basic template) OR common/config/main.conf (advanced template) and
 your config/console.conf (basic template) OR console/config/main.conf (advanced template).
 
 For all Adldap 2 options see https://adldap2.github.io/Adldap2/#/setup?id=array-example-with-all-options.
@@ -31,7 +31,9 @@ If you configure your username append your domain with **@domain.name**. Otherwi
  'username' => 'username_ldap_access@example.lan',
 ...
 ```
-See [Configuration](#configuration).
+See [Configuration](#configuration) section for example.
+
+The surname 
 
 ## Howto contribute or support the extension
 As you as delevoper know, it's **not only source code** that matters. The best code is worthless if no **documentation** exists. 
@@ -85,7 +87,7 @@ It has been a long way since 29. Jan 2014, many functions has been added. I noti
 * Sign in with a Active Directory User is possible **without doing anything in yii2**. The only action needed is creating a Active Directory User and add it to a group in Active Directory. 
 * Full support of the RBAC-concept from yii2
 * Default is to login with the sAMAccountName [Edvlerblog\Adldap2\model\UserDbLdap.php::findByUsername($username)](src/model/UserDbLdap.php). But using any attribute is possible [Edvlerblog\Adldap2\model\UserDbLdap.php::findByAttribute($attribute,$searchValue)](src/model/UserDbLdap.php).
-* Default is, that on login the Active Directory Account Status and the group assignments are checked. Based on the results the login is possible or not.
+* Default is, that on login the Active Directory Account status and the group assignments are checked. Based on the results the login is possible or not.
 * You can access every Active Directory attribute of the user. [Method 2](#usage-method-2-deep-integration-into-the-yii2-framework-with-a-user-model)
 * This yii2-extension is highly configurable.
 
@@ -234,7 +236,7 @@ Add this code in your components section of the application configuration (eg. c
 ```
 
 See official documentation for all config options.  
-https://github.com/Adldap2/Adldap2/blob/master/docs/configuration.md
+https://adldap2.github.io/Adldap2/#/setup?id=options
 
 ## Usage - Method 1, Method 2 and Method 3
 
@@ -267,7 +269,7 @@ $ldapObject = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccou
 //Please note that all fields from ldap are arrays!
 //Access it with ..[0] if it is a single value field.
 $givenName = $ldapObject['givenname'][0];
-$surname = $ldapObject['surname'][0];
+$surname = $ldapObject['sn'][0];
 $displayname = $ldapObject['displayname'][0];
 $telephone = $ldapObject['telephonenumber'][0];
 
@@ -283,6 +285,8 @@ echo '<pre>' . print_r($ldapObject,true) . '</pre>';
 
 **Further documentation with examples:** [docs/USAGE_WITHOUT_USER_MODEL.md](docs/USAGE_WITHOUT_USER_MODEL.md)
 
+Modify of attributes is also possible. See [Method 3](#usage-method-3-create-modify-and-delete-active-directory-objects).
+
 ---
 
 ### Usage method 2: Deep integration into the yii2 framework with a user model
@@ -297,7 +301,7 @@ Some Examples:
 $hasPermission = \Yii::$app->user->can('permissionDisplayDetailedAbout');
 
 
-//Query informations from Active Directory. You can use in a controller, a view, everywhere in yii2!
+//Query informations from Active Directory. You can use it in a controller, a view, everywhere in yii2!
 if (!\Yii::$app->user->isGuest) {
     //Get the yii2 identitiy, which was set by the Yii::$app->user->login(..,..) function
     //See model/LoginForm.php in the basic template for the login logic
@@ -325,8 +329,8 @@ if (!\Yii::$app->user->isGuest) {
     //Print all possible attributes
     echo '<pre>' . print_r($ldapObject,true) . '</pre>';
 
-    // More ways to get attributes:
-    // https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#getting-attributes
+    // More ways to get attributes of a user model:
+    // https://adldap2.github.io/Adldap2/#/models/user
 }
 //...
 ```
@@ -338,7 +342,7 @@ For example imagine the following:
 - In yii2 a role with the same name exists (yii2_example_group). The role has some permissions assigned.
 
 If you try to login with your new user, the user is created **automatically** in yii2 and role yii2_example_group is assigned **automatically** on login.  
-For the user this is transparent. The only feedback to the user is a successull login and that it is possible to use the functions which he has permissions to access.
+For the human this is transparent. The only feedback to the human is a successfull login and that it is possible to use the functions which he has permissions to access.
 
 **Further documentation with setup and examples:** [docs/USAGE_WITH_USER_MODEL.md](docs/USAGE_WITH_USER_MODEL.md)
 
@@ -346,25 +350,27 @@ For the user this is transparent. The only feedback to the user is a successull 
 
 ### Usage method 3: Create, modify and delete Active Directory objects
 Adldap2 offers the option to create, modify and delete Active Directory objects.
-See https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md for documentation.
+See https://adldap2.github.io/Adldap2/#/models/model for documentation.
 
 **Prequesits**
 * To create or modify attributes of a Active Directory object use a bind user in your [configuration](#configuration) with rights to change the attributes of the objects (a dirty but **very discourraged** way is to add the bind user to the domain-admins group)!
-* For some actions like change password you need a SSL/TLS connection. See [configuration](#configuration) for further hints.
+* For some actions, like change the password, you need a SSL/TLS connection. See [configuration](#configuration) for further hints.
 
 **One example:** Modify the displayname of a user
 
 ```php
-// https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#updating-attributes
+// https://adldap2.github.io/Adldap2/#/searching?id=finding-a-record-by-a-specific-attribute
 // Step 1: Query the ldap object (via method 1 or method 2) 
 $un = 'testuser';
 $ldapObject = \Yii::$app->ad->getProvider('default')->search()->findBy('sAMAccountname', $un);
 
 // Step 2: Update the attribute
-// https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md#setting-attributes
+// 
 $ldapObject->setDisplayName('Fancy New Displayname');
 
 // Step 3: Save an check return value
+// https://adldap2.github.io/Adldap2/#/models/model?id=attributes
+// https://adldap2.github.io/Adldap2/#/models/model?id=updating-attributes
 if ($ldapObject->save()) {
     echo "// Displayname successfully updated.";
 } else {

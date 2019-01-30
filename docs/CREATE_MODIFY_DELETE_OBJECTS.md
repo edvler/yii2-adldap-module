@@ -3,7 +3,7 @@
 ## This is only a Quick-Start-Guide!
 yii2-adldap-module is only a wrapper class. The examples below are all taken from the official documentation of the Adldap2 repository.
 
-You can find the documentation here: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md
+You can find the documentation here: https://github.com/Adldap2/Adldap2/blob/master/docs/models/model.md OR https://adldap2.github.io/Adldap2/#/searching
 
 **Don't forget, to set passwords on Active Directory users, you need a SSL/TLS connection!**
 See [/readme.md#configuration](/readme.md#configuration) ssl/tls parameters.

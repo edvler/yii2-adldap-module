@@ -180,7 +180,7 @@ If you successfully finished task 1 imagine the login form which you reach over 
 
 If you leave the default configuration, the following is happening on login (and I think it most suites):  
 - On Login a LDAP query is issued to get the user from Active Directory, if it not exists in database the user is created.  
-- On Login a LDAP query is issued to get the account status of the user, if the account status active the login is possible.  
+- On Login a LDAP query is issued to get the account status of the user, if the account status is **active** the login is possible.  
 - On Login the group to role assignment is refreshed with the following settings  
   - No role has to be assingned to the user for a successfull login  
   - For Active Directory groups starting with **yii2** or **app** and matching a existing role name in yii2, the role is assigned to the user automatically  
@@ -199,12 +199,12 @@ Now add the following to your config/params.php
 return [
     //...
     'LDAP-Group-Assignment-Options' => [
-            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/^(yii2|app)(.*)/", // a role has to be assign, which is starting with yii2 or with app
-            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // Active Directory groups beginning with yii2 or app ar filtered and if a yii2 role with the same name exists the role would be added to the user
+            'LOGIN_POSSIBLE_WITH_ROLE_ASSIGNED_MATCHING_REGEX' => "/^(yii2|app)(.*)/", // a role has to be assigned, which is starting with yii2 or with app
+            'REGEX_GROUP_MATCH_IN_LDAP' => "/^(yii2|app)(.*)/", // Active Directory groups beginning with yii2 or app are filtered and if a yii2 role with the same name exists the role would be added to the user
             'ADD_GROUPS_FROM_LDAP_MATCHING_REGEX' => true, //add matches between groups and roles to the user
-            'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => false,
+            'REMOVE_ALL_GROUPS_NOT_FOUND_IN_LDAP' => false, //Don't remove rules which does not belong to the regex above
             'REMOVE_ONLY_GROUPS_MATCHING_REGEX' => true, //Only remove groups matching regex REGEX_GROUP_MATCH_IN_LDAP
-            'SEARCH_NESTED_GROUPS' => false,
+            'SEARCH_NESTED_GROUPS' => false, //Only check directly assigned groups to the Active Directory user object.
         ],
     //...
 ];
@@ -249,12 +249,10 @@ Make the user you are using for the login to a member of that group.
 Now you can go to the login in page of your yii installation (see upper right corner of the website). Use the user which you are made to a member of the group **yii2_example_group** in Active Directory.
 If everythings okay you should see the username in upper right corner.
 
-
-
 #### Try some permission stuff
 ##### Special About text only visible for users with permission "permissionDisplayDetailedAbout"
 Open the file views/site/about.php  
-Place the following after the opening <div> tag or somewhere else in the file
+Place the following after the closing **div** tag or somewhere else in the file
 ```php
 <?php
 if (\Yii::$app->user->can('permissionDisplayDetailedAbout')) {
@@ -304,3 +302,6 @@ To view the Home screen the permission **permissionToSeeHome** is needed which i
 
 To get this role go to your Active Directory Management Console and create a group with the same name as the role (**yii2_see_home_group**).
 Make the user you are using for the login to a member of that group.
+
+
+**Have fun with your Active Directory integration!**
