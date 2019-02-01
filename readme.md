@@ -1,4 +1,4 @@
-# yii2-adldap-module v5 (wrapper for Adldap v9)
+# yii2-adldap-module v6 (wrapper for Adldap v10)
 [Yii2](http://www.yiiframework.com) extension for Adldap2 (https://packagist.org/packages/adldap2/adldap2)
 
 [![Latest Stable Version](https://poser.pugx.org/edvlerblog/yii2-adldap-module/v/stable)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
@@ -12,7 +12,7 @@
 * Create/Update/Edit Active Directory objects
 * Extensive test suite
 
-## Please read this if you upgrade from older versions to v5
+## Please read this if you upgrade from older versions to v5 or v6
 Adldap2 changed option keys in version 9. If you upgrade from a previous version you have to change your config/web.conf (basic template) OR common/config/main.conf (advanced template) and
 your config/console.conf (basic template) OR console/config/main.conf (advanced template).
 
@@ -110,11 +110,11 @@ The preferred way to install this extension is through [Composer](http://getcomp
 
 Either run
 ```
-php composer.phar require edvlerblog/yii2-adldap-module "^5.0.0"
+php composer.phar require edvlerblog/yii2-adldap-module "^6.0.0"
 ```
 or add
 ```
-"edvlerblog/yii2-adldap-module": "^5.0.0"
+"edvlerblog/yii2-adldap-module": "^6.0.0"
 ```
 to the require section of your composer.json
 
