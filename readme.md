@@ -1,4 +1,4 @@
-# yii2-adldap-module v6 (wrapper for Adldap v10)
+# yii2-adldap-module v6 (wrapper for Adldap2 v10)
 [Yii2](http://www.yiiframework.com) extension for Adldap2 (https://packagist.org/packages/adldap2/adldap2)
 
 [![Latest Stable Version](https://poser.pugx.org/edvlerblog/yii2-adldap-module/v/stable)](https://packagist.org/packages/edvlerblog/yii2-adldap-module)
@@ -72,7 +72,7 @@ If you want to help you can do the following:
 ## Version
 
 Current Version:
-yii2-adldap-module Releases beginning with tag v5.*.* are reserved for Adldap2 v9.*
+yii2-adldap-module Releases beginning with tag v6.*.* are reserved for Adldap2 v10.*
 The corresponding Adldap2 repository is https://github.com/Adldap2/Adldap2/tree/master
 
 **Keep this in mind if you are browsing the GitHub Repository of Adldap2**
