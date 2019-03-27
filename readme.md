@@ -33,8 +33,6 @@ If you configure your username append your domain with **@domain.name**. Otherwi
 ```
 See [Configuration](#configuration) section for example.
 
-The surname 
-
 ## Howto contribute or support the extension
 As you as delevoper know, it's **not only source code** that matters. The best code is worthless if no **documentation** exists. 
 My focus is to provide a comprehensive documentation for this extension. This should help **YOU** to do your task fast and without struggle.
