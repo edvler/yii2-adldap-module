@@ -20,7 +20,7 @@ For all Adldap 2 options see https://adldap2.github.io/Adldap2/#/setup?id=array-
 
 The mandatory changed options are:
 * admin_username: renamed to username
-* admin_passwort: renamed to passwort
+* admin_password: renamed to password
 * domain_controllers: renamed to hosts
 
 If you configure your username append your domain with **@domain.name**. Otherwise you maybe get
@@ -37,7 +37,7 @@ The surname
 
 ## Howto contribute or support the extension
 As you as delevoper know, it's **not only source code** that matters. The best code is worthless if no **documentation** exists. 
-My focus is to provide a comprehensive documentation for this extension. This should help **YOU** to do your task fast and without strugle.
+My focus is to provide a comprehensive documentation for this extension. This should help **YOU** to do your task fast and without struggle.
 Updating this extension take days starting with programming, writing the docs and write test for the code and the docs.
 
 **I'am glad to see that many persons use the plugin!**
